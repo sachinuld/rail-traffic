@@ -1,0 +1,7 @@
+MOBILE INSTALL:
+1. Host this folder on any HTTPS web host.
+2. Open the site in Chrome on Android.
+3. Use Chrome menu -> Add to Home screen / Install app.
+4. The Rail Traffic icon will appear on the phone and open standalone.
+
+NOTE: The included train data is DEMO data. Real railway live positions require an authorized live data provider/backend.
