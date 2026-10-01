@@ -1,11 +1,11 @@
 {
-  "name": "Rail Traffic",
+  "name": "Rail Traffic India",
   "short_name": "Rail Traffic",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#eef3f8",
   "theme_color": "#0b5cab",
-  "description": "Kanpur–Etawah rail traffic tracker",
+  "description": "भारत के लिए ट्रेन स्थिति और साझा रूट पर आगे–पीछे की ट्रेनें",
   "icons": [
     {
       "src": "icon-192.png",

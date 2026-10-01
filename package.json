@@ -1,0 +1,1 @@
+{"name":"rail-traffic-live","private":true,"type":"module","scripts":{"start":"node server/server.mjs","test":"node --test server/railradar.test.mjs"},"engines":{"node":">=22"}}
