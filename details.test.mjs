@@ -19,3 +19,12 @@ test('complete formation preserves coaches omitted from detailed sample list',()
  assert.deepEqual(d.coaches.map(c=>c.code),['ENG','EOG','H1','A1']);
  assert.throws(()=>normalizeCoaches({success:true,data:{trainNumber:'12952',stationCode:'BRC'}},'12952','CNB'));
 });
+test('live station object and rake schema works and rejects a different station',()=>{
+ const payload={success:true,data:{trainNumber:'12420',station:{code:'PHD',name:'Phaphund',platform:'2'},formation:'ENG-SLRD-GEN-C1',rake:[]}};
+ const result=normalizeCoaches(payload,'12420','PHD');
+ assert.equal(result.station,'Phaphund');assert.equal(result.platform,'2');assert.equal(result.coaches.length,4);
+ assert.throws(()=>normalizeCoaches(payload,'12420','NDLS'));
+ delete payload.data.formation;
+ payload.data.rake=[{position:2,code:'SLRD'},{position:1,code:'ENG'}];
+ assert.deepEqual(normalizeCoaches(payload,'12420','PHD').coaches,[{position:1,code:'ENG'},{position:2,code:'SLRD'}]);
+});

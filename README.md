@@ -1,4 +1,4 @@
-Rail Traffic — संस्करण 4
+Rail Traffic — संस्करण 4.2
 
 नई सुविधाएँ
 - हर स्टेशन का निर्धारित आगमन–प्रस्थान, उपलब्ध दर्ज/संभावित समय और प्लेटफॉर्म नंबर।
@@ -19,14 +19,16 @@ Rail Traffic — संस्करण 4
 4. जरूरत पर Render > Manual Deploy > Deploy latest commit चुनें।
 5. Render start command: node server.mjs; Health Check Path: /health
 6. RAILRADAR_API_KEY केवल Render environment में रखें। ALLOWED_ORIGIN अपने frontend का origin रखें (default https://sachinuld.github.io)।
-7. ऐप refresh करें। नीचे संस्करण 4 तथा /health पर behind-4 दिखना चाहिए। पुराने कैश पर Ctrl+Shift+R करें।
+7. ऐप refresh करें। नीचे संस्करण 4.2 तथा /health पर behind-4.2 दिखना चाहिए। पुराने कैश पर Ctrl+Shift+R करें।
 8. ट्रेन खोजें; स्टेशनवार समय देखें; स्टेशन चुनकर कोच देखें; PNR बटन से आधिकारिक वेबसाइट खोलें।
 
 जाँच
-npm test — 16 परीक्षण; स्टेशन के समय, कोच डेटा, पीछे की 6 ट्रेनों की सीमा और HTTP व्यवहार।
+npm test — 17 परीक्षण; स्टेशन के समय, कोच डेटा, पीछे की 6 ट्रेनों की सीमा और HTTP व्यवहार।
 वास्तविक लाइव डेटा की जाँच deployment और आपकी API key के साथ करें।
 
 तकनीकी स्रोत
 https://railradar.in/docs/live-train-status
 https://railradar.in/docs/station-coach-position
 https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en
+
+संस्करण 4.2: केवल isHalt=true वाले स्टेशनों को हरे कार्ड और ठहराव बैज से हाईलाइट किया गया है। कोच जवाब में station.code/name/platform और rake वाले वास्तविक प्रारूप को समर्थन दिया गया है।

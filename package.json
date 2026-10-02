@@ -1,1 +1,1 @@
-{"name":"rail-traffic-nearby","version":"4.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test *.test.mjs"},"engines":{"node":">=22"}}
+{"name":"rail-traffic-nearby","version":"4.2.0","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test *.test.mjs"},"engines":{"node":">=22"}}

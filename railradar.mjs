@@ -12,11 +12,11 @@ export function stationDetails(s){
 }
 export function normalizeCoaches(payload,number,station){
  const d=payload?.data;
- if(payload?.success!==true||d?.trainNumber!==number||d?.stationCode!==station)throw Error('Invalid coach response');
+ if(payload?.success!==true||d?.trainNumber!==number||(d?.station?.code??d?.stationCode)!==station)throw Error('Invalid coach response');
  const formation=typeof d.formation==='string'?d.formation.split('-').filter(Boolean):[];
  const coaches=formation.length?formation.map((code,i)=>({position:i+1,code})):
- (Array.isArray(d.coaches)?d.coaches:[]).filter(c=>typeof c.code==='string'&&Number.isInteger(c.position)&&c.position>0).map(c=>({position:c.position,code:c.code})).sort((a,b)=>a.position-b.position);
- return {station:d.stationName||station,platform:d.platform??null,coaches};
+ (Array.isArray(d.rake)?d.rake:Array.isArray(d.coaches)?d.coaches:[]).filter(c=>typeof c.code==='string'&&Number.isInteger(c.position)&&c.position>0).map(c=>({position:c.position,code:c.code})).sort((a,b)=>a.position-b.position);
+ return {station:d.station?.name||d.stationName||station,platform:d.station?.platform??d.platform??null,coaches};
 }
 export function normalize(payload,number,date){
  const d=payload?.data;

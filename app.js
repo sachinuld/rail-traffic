@@ -16,8 +16,8 @@ function render(data){
 
  $('stations').replaceChildren();$('coach-station').replaceChildren();resetCoaches();
  for(const s of data.stations||[]){
-  const card=text('article','','station');
-  const heading=text('div','','station-heading');heading.append(text('h3',s.name+(s.code?' • '+s.code:'')),text('span','प्लेटफॉर्म '+(s.platform??'उपलब्ध नहीं')+(s.platformChanged?' • बदला है':''),'platform'));card.append(heading,text('p',s.status,'muted'));
+  const card=text('article','','station'+(s.isHalt===true?' station-halt':''));
+  const heading=text('div','','station-heading');heading.append(text('h3',s.name+(s.code?' • '+s.code:'')),text('span','प्लेटफॉर्म '+(s.platform??'उपलब्ध नहीं')+(s.platformChanged?' • बदला है':''),'platform'));if(s.isHalt===true)heading.append(text('span','● ठहराव','halt-badge'));card.append(heading,text('p',s.status,'muted'));
   const grid=text('div','','times');
   for(const [label,event] of [['आगमन',s.arrival],['प्रस्थान',s.departure]]){
    const cell=text('div','','time-cell');cell.append(text('b',label),text('p','निर्धारित: '+time(event?.scheduled)));
