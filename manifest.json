@@ -1,11 +1,11 @@
 {
-  "name": "Rail Traffic India",
-  "short_name": "Rail Traffic",
+  "name": "Indian Rail Live",
+  "short_name": "Rail Live",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#eef3f8",
-  "theme_color": "#0b5cab",
-  "description": "भारत के लिए ट्रेन स्थिति और साझा रूट पर आगे–पीछे की ट्रेनें",
+  "theme_color": "#155f9d",
+  "description": "ट्रेन खोज, लाइव स्टेशन, रूट और पीछे की ट्रेनें",
   "icons": [
     {
       "src": "icon-192.png",

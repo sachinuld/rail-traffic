@@ -41,8 +41,8 @@ test('HTTP endpoints keep normal status working and protect cross-origin access'
  const d=path.includes('10001')?run('10001',1):run('10000',5);return new Response(JSON.stringify({success:true,data:d}));};
  const {server}=await import('./server.mjs');await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port;
  try{
- let r=await nativeFetch(base+'/api/status?train=10000&date=2026-10-01');assert.equal(r.status,200);assert.equal((await r.json()).train.number,'10000');
- r=await nativeFetch(base+'/api/nearby?train=10000&date=2026-10-01');assert.equal(r.status,200);assert.equal((await r.json()).items[0].relation,'behind');assert.equal(upstream,3);
+ let r=await nativeFetch(base+'/api/status?train=10000&date=2026-10-01');assert.equal(r.status,200);assert.equal((await r.json()).data.train.number,'10000');
+ r=await nativeFetch(base+'/api/nearby?train=10000&date=2026-10-01');assert.equal(r.status,200);assert.equal((await r.json()).data.items[0].relation,'behind');assert.equal(upstream,3);
  r=await nativeFetch(base+'/api/nearby?train=10000&date=2026-10-01');assert.equal(r.status,200);assert.equal(upstream,3);
  r=await nativeFetch(base+'/api/status?train=10000&date=2026-10-01',{headers:{Origin:'https://other.example'}});assert.equal(r.status,403);
  r=await nativeFetch(base+'/api/status?train=10000&date=2026-02-30');assert.equal(r.status,400);
