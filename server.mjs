@@ -1,5 +1,5 @@
 import http from 'node:http';
-import {normalize} from './railradar.mjs';
+import {normalize,normalizeCoaches} from './railradar.mjs';
 import {request} from './provider.mjs';
 import {discover} from './nearby.mjs';
 const origin=process.env.ALLOWED_ORIGIN||'https://sachinuld.github.io';
@@ -10,11 +10,17 @@ export const server=http.createServer(async(req,res)=>{
  if(req.headers.origin&&req.headers.origin!==origin)return send(403,{error:'Origin not allowed'});
  if(req.method==='OPTIONS')return send(204,{});
  const u=new URL(req.url,'http://localhost');
- if(req.method==='GET'&&u.pathname==='/health')return send(200,{ok:true,version:'behind-3'});
- if(req.method!=='GET'||!['/api/status','/api/nearby'].includes(u.pathname))return send(404,{error:'Not found'});
+ if(req.method==='GET'&&u.pathname==='/health')return send(200,{ok:true,version:'behind-4'});
+ if(req.method!=='GET'||!['/api/status','/api/nearby','/api/coaches'].includes(u.pathname))return send(404,{error:'Not found'});
  const train=u.searchParams.get('train')||'',date=u.searchParams.get('date')||'';
  if(!/^\d{5}$/.test(train)||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date)return send(400,{error:'सही पाँच अंकों का ट्रेन नंबर और यात्रा शुरू होने की तारीख दें।'});
  try{
+ if(u.pathname==='/api/coaches'){
+ const station=u.searchParams.get('station')||'';
+ if(!/^[A-Z0-9]{1,10}$/.test(station))return send(400,{error:'सही स्टेशन चुनें।'});
+ const payload=await request('/trains/'+train+'/coaches/'+station);
+ return send(200,normalizeCoaches(payload,train,station));
+ }
  const p=await request('/trains/'+train+'/live?date='+date+'&haltsOnly=false');
  const normal=normalize(p,train,date);
  if(u.pathname==='/api/status')return send(200,normal);
