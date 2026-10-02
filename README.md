@@ -1,4 +1,4 @@
-Rail Traffic — संस्करण 4.2
+Rail Traffic — संस्करण 5
 
 नई सुविधाएँ
 - हर स्टेशन का निर्धारित आगमन–प्रस्थान, उपलब्ध दर्ज/संभावित समय और प्लेटफॉर्म नंबर।
@@ -19,7 +19,7 @@ Rail Traffic — संस्करण 4.2
 4. जरूरत पर Render > Manual Deploy > Deploy latest commit चुनें।
 5. Render start command: node server.mjs; Health Check Path: /health
 6. RAILRADAR_API_KEY केवल Render environment में रखें। ALLOWED_ORIGIN अपने frontend का origin रखें (default https://sachinuld.github.io)।
-7. ऐप refresh करें। नीचे संस्करण 4.2 तथा /health पर behind-4.2 दिखना चाहिए। पुराने कैश पर Ctrl+Shift+R करें।
+7. ऐप refresh करें। नीचे संस्करण 5 तथा /health पर behind-4.2 दिखना चाहिए। पुराने कैश पर Ctrl+Shift+R करें।
 8. ट्रेन खोजें; स्टेशनवार समय देखें; स्टेशन चुनकर कोच देखें; PNR बटन से आधिकारिक वेबसाइट खोलें।
 
 जाँच
@@ -31,4 +31,13 @@ https://railradar.in/docs/live-train-status
 https://railradar.in/docs/station-coach-position
 https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en
 
-संस्करण 4.2: केवल isHalt=true वाले स्टेशनों को हरे कार्ड और ठहराव बैज से हाईलाइट किया गया है। कोच जवाब में station.code/name/platform और rake वाले वास्तविक प्रारूप को समर्थन दिया गया है।
+संस्करण 5: केवल isHalt=true वाले स्टेशनों को हरे कार्ड और ठहराव बैज से हाईलाइट किया गया है। कोच जवाब में station.code/name/platform और rake वाले वास्तविक प्रारूप को समर्थन दिया गया है।
+
+
+संस्करण 5 डिज़ाइन:
+- नीली शीर्ष पट्टी, छोटे फ़ॉन्ट और कम खाली जगह।
+- स्टेशन टाइमलाइन: बाएँ आगमन, बीच में स्टेशन/प्लेटफॉर्म, दाएँ प्रस्थान।
+- स्टेशन, पीछे की ट्रेनें और कोच के अलग टैब; डिफॉल्ट स्टेशन टैब।
+- ठहराव हरा, अन्य स्टेशन सामान्य। सभी समय के साथ तारीख बनी रहती है।
+- कोच सुधार और पीछे की अधिकतम 6 ट्रेनें बरकरार।
+- Backend में कोई नया बदलाव नहीं: /health पर behind-4.2, ऐप footer में संस्करण 5।

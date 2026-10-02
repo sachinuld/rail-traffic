@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const time=value=>{const n=Date.parse(value);return Number.isFinite(n)?new Date(n).toLocaleString('hi-IN',{timeZone:'Asia/Kolkata'}):'उपलब्ध नहीं';};
+const time=value=>{const n=Date.parse(value);return Number.isFinite(n)?new Date(n).toLocaleString('hi-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}):'उपलब्ध नहीं';};
 $('date').value=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 try{$('endpoint').value=localStorage.getItem('rail-server')||'https://rail-traffic.onrender.com';}catch{$('endpoint').value='https://rail-traffic.onrender.com';}
 let generation=0,current=null,coachGeneration=0;
@@ -17,13 +17,21 @@ function render(data){
  $('stations').replaceChildren();$('coach-station').replaceChildren();resetCoaches();
  for(const s of data.stations||[]){
   const card=text('article','','station'+(s.isHalt===true?' station-halt':''));
-  const heading=text('div','','station-heading');heading.append(text('h3',s.name+(s.code?' • '+s.code:'')),text('span','प्लेटफॉर्म '+(s.platform??'उपलब्ध नहीं')+(s.platformChanged?' • बदला है':''),'platform'));if(s.isHalt===true)heading.append(text('span','● ठहराव','halt-badge'));card.append(heading,text('p',s.status,'muted'));
-  const grid=text('div','','times');
-  for(const [label,event] of [['आगमन',s.arrival],['प्रस्थान',s.departure]]){
-   const cell=text('div','','time-cell');cell.append(text('b',label),text('p','निर्धारित: '+time(event?.scheduled)));
-   cell.append(text('p',(event?.actual?'दर्ज: ':'संभावित: ')+time(event?.actual||event?.expected)));grid.append(cell);
+
+  const center=text('div','','station-center');
+  center.append(text('h3',s.name),text('small',s.code||'','station-code'));
+  const info=text('div','','station-info');
+  info.append(text('span','PF '+(s.platform??'—')+(s.platformChanged?' • बदला है':''),'platform'));
+  if(s.isHalt===true)info.append(text('span','ठहराव','halt-badge'));
+  center.append(info,text('p',s.status,'muted'));
+  function eventCell(event,label){
+   const cell=text('div','','event-time');cell.setAttribute('aria-label',label);
+   cell.append(text('span',time(event?.scheduled),'scheduled'));
+   cell.append(text('small',(event?.actual?'दर्ज: ':'संभावित: ')+time(event?.actual||event?.expected),'live-time'));
+   return cell;
   }
-  card.append(grid);$('stations').append(card);
+  card.append(eventCell(s.arrival,'आगमन'),center,eventCell(s.departure,'प्रस्थान'));
+  $('stations').append(card);
   if(s.isHalt&&s.code){const opt=text('option',s.name+' ('+s.code+')');opt.value=s.code;$('coach-station').append(opt);}
  }
  $('coach-search').disabled=!$('coach-station').options.length;
@@ -39,20 +47,22 @@ async function nearby(){
  if(!current)return;const mine=generation,q={...current};$('nearby-search').disabled=true;$('nearby').replaceChildren();$('nearby-message').textContent='रूट, दिशा और अपडेट का समय मिलाया जा रहा है…';
  try{const data=await call(q.base,'/api/nearby',q);if(mine!==generation)return;
  if(!Array.isArray(data.items))throw Error('सर्वर का नया संस्करण अभी चालू नहीं हुआ है।');
- $('nearby-message').textContent=(data.message||'')+(Number.isFinite(data.checked)?' जाँची गई: '+data.checked+'।':'')+(data.failed?' '+data.failed+' ट्रेनों की जाँच पूरी नहीं हुई।':'')+(data.baseUpdatedAt?' आपकी ट्रेन का तुलना-समय: '+time(data.baseUpdatedAt):'');
+ $('nearby-message').textContent=(data.state==='unavailable'?(data.message||'तुलनीय जानकारी उपलब्ध नहीं है।'):'')+(Number.isFinite(data.checked)?'जाँची गई: '+data.checked+' ट्रेनें।':'')+(data.failed?' '+data.failed+' ट्रेनों की जाँच पूरी नहीं हुई।':'')+(data.baseUpdatedAt?' आपकी ट्रेन का तुलना-समय: '+time(data.baseUpdatedAt):'');
  for(const [rel,title] of [['behind','आपके पीछे']]){
- const section=text('section','');section.append(text('h3',title));const rows=data.items.filter(n=>n.relation===rel).slice(0,6);
- for(const n of rows){const card=text('div',n.number+' • '+n.name,'train');
+ const section=text('section','','nearby-grid');const rows=data.items.filter(n=>n.relation===rel).slice(0,6);
+ for(const n of rows){const card=text('article','','train');card.append(text('h3',n.number+' • '+n.name));
  card.append(text('p',n.locationStatus==='arrived'?n.station+' पर दर्ज':n.station+' → '+n.nextStation+' के बीच रिपोर्ट की गई स्थिति'));
  if(rel!=='uncertain')card.append(text('p','स्टेशन-खंडों से दूरी की सीमा: लगभग '+n.distanceMinKm+'–'+n.distanceMaxKm+' किमी'));
  const halt=n.nextHalt;
  if(halt){
  card.append(text('h4','अगला ठहराव: '+halt.name));
- card.append(text('p','निर्धारित आगमन: '+time(halt.scheduledArrival)));
- card.append(text('p','संभावित आगमन: '+time(halt.expectedArrival)));
- card.append(text('p','निर्धारित प्रस्थान: '+time(halt.scheduledDeparture)));
- card.append(text('p','संभावित प्रस्थान: '+time(halt.expectedDeparture)));
- card.append(text('p','सभी समय भारतीय समय में हैं। संभावित समय बदल सकता है।','muted'));
+
+ const times=text('div','','times');
+ for(const [label,schedule,expected] of [['आगमन',halt.scheduledArrival,halt.expectedArrival],['प्रस्थान',halt.scheduledDeparture,halt.expectedDeparture]]){
+ const cell=text('div','','time-cell');cell.append(text('b',label),text('p','निर्धारित: '+time(schedule)),text('p','संभावित: '+time(expected)));times.append(cell);
+ }
+ card.append(times);
+
  }else card.append(text('p','अगले ठहराव का समय: जानकारी उपलब्ध नहीं','muted'));
  card.append(text('p','अपडेट: '+time(n.updatedAt)+' • यात्रा शुरू: '+n.journeyDate,'muted'));section.append(card);}
  if(!rows.length)section.append(text('p','इस जाँच में तुलनीय ट्रेन नहीं मिली।','muted'));$('nearby').append(section);
@@ -80,3 +90,10 @@ async function coaches(){
 }
 $('coach-form').onsubmit=e=>{e.preventDefault();coaches();};
 $('coach-station').onchange=resetCoaches;
+
+for(const button of document.querySelectorAll('[data-view]')){
+ button.addEventListener('click',()=>{
+  for(const panel of document.querySelectorAll('.view-panel'))panel.hidden=panel.id!==button.dataset.view;
+  for(const tab of document.querySelectorAll('[data-view]'))tab.setAttribute('aria-pressed',String(tab===button));
+ });
+}
