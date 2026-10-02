@@ -28,17 +28,16 @@ export function context(d,now=Date.now()){
 export function candidates(base,feed,limit=6,now=Date.now()){
  const c=context(base,now);if(!c)return [];
  const indices=new Map(c.route.map((s,i)=>[s.stationCode,i]));
- const home=c.route[c.pos.i].distance,seen=new Set(),groups=[[],[],[]];
+ const home=c.route[c.pos.i].distance,seen=new Set(),rows=[];
  for(const row of feed){
  const number=String(row.train_number||'');if(!/^\d{5}$/.test(number)||number===base.trainNumber||seen.has(number))continue;
  const i=indices.get(row.current_station),j=indices.get(row.next_station);
  if(i===undefined||j===undefined||j<=i)continue;
- const gap=c.route[i].distance-home;if(Math.abs(gap)>100)continue;
- seen.add(number);groups[gap>0?0:gap<0?1:2].push({number,gap:Math.abs(gap)});
+ const gap=c.route[i].distance-home;if(gap>=0||Math.abs(gap)>100)continue;
+ seen.add(number);rows.push({number,gap:Math.abs(gap)});
  }
- groups.forEach(g=>g.sort((a,b)=>a.gap-b.gap));
- const result=[];for(let n=0;result.length<limit&&groups.some(g=>g.length>n);n++)for(const g of groups)if(g[n]&&result.length<limit)result.push(g[n].number);
- return result;
+ rows.sort((a,b)=>a.gap-b.gap);
+ return rows.slice(0,limit).map(r=>r.number);
 }
 export function compare(base,other,now=Date.now()){
  if(other?.trainNumber===base?.trainNumber)return null;
@@ -62,7 +61,7 @@ export function compare(base,other,now=Date.now()){
  return {number:other.trainNumber,name:other.trainName||other.trainNumber,journeyDate:other.startDate,relation,
  distanceMinKm:Math.floor(min),distanceMaxKm:Math.ceil(max),station:b.route[b.pos.i].stationName||b.route[b.pos.i].stationCode,
  nextStation:b.route[b.pos.i+1].stationName||b.route[b.pos.i+1].stationCode,
- locationStatus:other.currentLocation.status,updatedAt:other.lastUpdatedAt,estimated:true};
+ nextHalt:nextHaltTimes(other),locationStatus:other.currentLocation.status,updatedAt:other.lastUpdatedAt,estimated:true};
 }
 export async function discover(base,request,now=Date.now()){
  if(!context(base,now))return {items:[],state:'unavailable',message:'आपकी ट्रेन का ताज़ा, तुलनीय रूट डेटा नहीं मिला। पहले लाइव स्थिति फिर देखें।'};
@@ -77,9 +76,28 @@ export async function discover(base,request,now=Date.now()){
  if(p?.success!==true||d?.trainNumber!==n||!/^\d{4}-\d{2}-\d{2}$/.test(d?.startDate||''))throw Error('Wrong run');
  return compare(base,d,Date.now());
  }));
- for(const result of results)if(result.status==='rejected')failed++;else if(result.value)items.push(result.value);else rejected++;
+ for(const result of results)if(result.status==='rejected')failed++;else if(result.value?.relation==='behind')items.push(result.value);else rejected++;
  }
  items.sort((a,b)=>a.distanceMinKm-b.distanceMinKm);
  return {items,state:failed?'partial':'checked',checked:selected.length,failed,rejected,baseUpdatedAt:base.lastUpdatedAt,
- message:'लगभग 100 किमी के दायरे में अधिकतम 6 संभावित ट्रेनों की जाँच। यह सभी ट्रेनों की पूरी सूची नहीं है; खाली परिणाम का अर्थ रास्ता खाली होना नहीं है।'};
+ message:'लगभग 100 किमी के दायरे में पीछे की अधिकतम 6 संभावित ट्रेनों की जाँच। यह सभी ट्रेनों की पूरी सूची नहीं है; खाली परिणाम का अर्थ रास्ता खाली होना नहीं है।'};
+}
+
+// Future "actual" fields from the provider are estimates, never observed arrivals.
+export function nextHaltTimes(d){
+ const route=d.route||[],i=route.findIndex(s=>s.stationCode===d.currentLocation?.stationCode);
+ if(i<0)return null;
+ const stop=route.slice(i+1).find(s=>s.isHalt===true && !['departed','skipped','cancelled'].includes(s.status));
+ if(!stop)return null;
+ const valid=v=>typeof v==='string' && /T.*(?:Z|[+-]\d{2}:\d{2})$/.test(v) && Number.isFinite(Date.parse(v))?v:null;
+ const expected=(event)=>{
+ const schedule=valid(stop['scheduled'+event]);if(!schedule)return null;
+ const supplied=valid(stop['actual'+event]);
+ if(supplied)return supplied;
+ const delay=stop['delay'+event];
+ return Number.isFinite(delay)?new Date(Date.parse(schedule)+delay*60000).toISOString():null;
+ };
+ return {code:stop.stationCode,name:stop.stationName||stop.stationCode,
+ scheduledArrival:valid(stop.scheduledArrival),scheduledDeparture:valid(stop.scheduledDeparture),
+ expectedArrival:expected('Arrival'),expectedDeparture:expected('Departure')};
 }

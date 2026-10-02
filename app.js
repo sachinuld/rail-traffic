@@ -6,7 +6,7 @@ let generation=0,current=null;
 function text(tag,value,cls){const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;return el;}
 function endpoint(){const u=new URL($('endpoint').value.trim());if(u.protocol!=='https:'||u.username||u.password)throw Error('सही HTTPS सर्वर पता भरें।');return u.origin;}
 async function call(base,path,q){const url=new URL(path,base);url.searchParams.set('train',q.train);url.searchParams.set('date',q.date);const r=await fetch(url,{signal:AbortSignal.timeout(90000)});let data;try{data=await r.json();}catch{throw Error('सर्वर से सही जवाब नहीं मिला। फिर प्रयास करें।');}if(!r.ok)throw Error(data.error||'सेवा अभी उपलब्ध नहीं है।');return data;}
-function clearNearby(){ $('nearby').replaceChildren();$('nearby-message').textContent='बटन दबाने पर आसपास की संभावित ट्रेनों का लाइव स्टेटस अलग से जाँचा जाएगा।';$('nearby-search').disabled=false;}
+function clearNearby(){ $('nearby').replaceChildren();$('nearby-message').textContent='बटन दबाने पर पीछे की संभावित ट्रेनों का लाइव स्टेटस अलग से जाँचा जाएगा।';$('nearby-search').disabled=false;}
 function render(data){
  const t=data.train;if(data.demo||!t?.number)throw Error('सर्वर से सही लाइव जानकारी नहीं मिली।');
  $('notice').textContent='RailRadar से प्राप्त जानकारी — हर ट्रेन के अपडेट का समय देखें।';
@@ -26,15 +26,24 @@ async function nearby(){
  try{const data=await call(q.base,'/api/nearby',q);if(mine!==generation)return;
  if(!Array.isArray(data.items))throw Error('सर्वर का नया संस्करण अभी चालू नहीं हुआ है।');
  $('nearby-message').textContent=(data.message||'')+(Number.isFinite(data.checked)?' जाँची गई: '+data.checked+'।':'')+(data.failed?' '+data.failed+' ट्रेनों की जाँच पूरी नहीं हुई।':'')+(data.baseUpdatedAt?' आपकी ट्रेन का तुलना-समय: '+time(data.baseUpdatedAt):'');
- for(const [rel,title] of [['ahead','आपके आगे'],['uncertain','समान स्टेशन-खंड — क्रम स्पष्ट नहीं'],['behind','आपके पीछे']]){
+ for(const [rel,title] of [['behind','आपके पीछे']]){
  const section=text('section','');section.append(text('h3',title));const rows=data.items.filter(n=>n.relation===rel);
  for(const n of rows){const card=text('div',n.number+' • '+n.name,'train');
  card.append(text('p',n.locationStatus==='arrived'?n.station+' पर दर्ज':n.station+' → '+n.nextStation+' के बीच रिपोर्ट की गई स्थिति'));
  if(rel!=='uncertain')card.append(text('p','स्टेशन-खंडों से दूरी की सीमा: लगभग '+n.distanceMinKm+'–'+n.distanceMaxKm+' किमी'));
+ const halt=n.nextHalt;
+ if(halt){
+ card.append(text('h4','अगला ठहराव: '+halt.name));
+ card.append(text('p','निर्धारित आगमन: '+time(halt.scheduledArrival)));
+ card.append(text('p','संभावित आगमन: '+time(halt.expectedArrival)));
+ card.append(text('p','निर्धारित प्रस्थान: '+time(halt.scheduledDeparture)));
+ card.append(text('p','संभावित प्रस्थान: '+time(halt.expectedDeparture)));
+ card.append(text('p','सभी समय भारतीय समय में हैं। संभावित समय बदल सकता है।','muted'));
+ }else card.append(text('p','अगले ठहराव का समय: जानकारी उपलब्ध नहीं','muted'));
  card.append(text('p','अपडेट: '+time(n.updatedAt)+' • यात्रा शुरू: '+n.journeyDate,'muted'));section.append(card);}
  if(!rows.length)section.append(text('p','इस जाँच में तुलनीय ट्रेन नहीं मिली।','muted'));$('nearby').append(section);
  }
- }catch(e){if(mine===generation)$('nearby-message').textContent='आगे–पीछे की खोज पूरी नहीं हुई: '+(e.name==='TimeoutError'?'सर्वर ने समय पर जवाब नहीं दिया। फिर प्रयास करें।':e.message);}
+ }catch(e){if(mine===generation)$('nearby-message').textContent='पीछे की ट्रेनों की खोज पूरी नहीं हुई: '+(e.name==='TimeoutError'?'सर्वर ने समय पर जवाब नहीं दिया। फिर प्रयास करें।':e.message);}
  finally{if(mine===generation)$('nearby-search').disabled=false;}
 }
 $('search').onsubmit=e=>{e.preventDefault();search();};$('refresh').onclick=search;$('nearby-search').onclick=nearby;
