@@ -1,5 +1,6 @@
 import {locationFacts} from './accuracy.mjs';
 // Feed rows discover candidates only. Ordering always uses separately checked live runs.
+export const BEHIND_RADIUS_KM=50;
 export const FRESH_MS=5*60*1000;
 export function fresh(d,now=Date.now()){
  const t=Date.parse(d?.lastUpdatedAt);
@@ -34,7 +35,7 @@ export function candidates(base,feed,limit=Infinity,now=Date.now()){
  const number=String(row.train_number||'');if(!/^\d{5}$/.test(number)||number===base.trainNumber||seen.has(number))continue;
  const i=indices.get(row.current_station),j=indices.get(row.next_station);
  if(i===undefined||j===undefined||j<=i)continue;
- const gap=c.route[i].distance-home;if(gap>=0)continue;
+ const gap=c.route[i].distance-home;if(gap>=0||home-c.route[j].distance>BEHIND_RADIUS_KM)continue;
  seen.add(number);rows.push({number,gap:Math.abs(gap)});
  }
  rows.sort((a,b)=>a.gap-b.gap);
@@ -68,7 +69,7 @@ export async function discover(base,request,now=Date.now(),offset=0){
  if(!context(base,now))return {items:[],checked:0,failed:0,totalCandidates:0,nextOffset:null,state:'unavailable',message:'आपकी ट्रेन का ताज़ा, तुलनीय रूट डेटा नहीं मिला। पहले लाइव स्थिति फिर देखें।'};
  const map=await request('/legacy/trains/live-map');
  if(map?.success!==true||!Array.isArray(map.data))throw Error('Invalid map response');
- const all=candidates(base,map.data,Infinity,now),selected=all.slice(offset,offset+8),items=[];let failed=0,rejected=0;
+ const all=candidates(base,map.data,Infinity,now),selected=all.slice(offset,offset+8),items=[];let failed=0,rejected=0,rateLimited=false,boundaryUncertain=0;
  // Bounded parallelism; provider quota and shared caching are enforced by request().
  for(let i=0;i<selected.length;i+=3){
  const results=await Promise.allSettled(selected.slice(i,i+3).map(async n=>{
@@ -77,11 +78,11 @@ export async function discover(base,request,now=Date.now(),offset=0){
  if(p?.success!==true||d?.trainNumber!==n||!/^\d{4}-\d{2}-\d{2}$/.test(d?.startDate||''))throw Error('Wrong run');
  return compare(base,d,Date.now());
  }));
- for(const result of results)if(result.status==='rejected')failed++;else if(result.value?.relation==='behind')items.push(result.value);else rejected++;
+ for(const result of results){if(result.status==='rejected'){failed++;if(result.reason?.status===429)rateLimited=true;}else if(result.value?.relation==='behind'&&result.value.distanceMaxKm<=BEHIND_RADIUS_KM)items.push(result.value);else{if(result.value?.relation==='behind'&&result.value.distanceMinKm<=BEHIND_RADIUS_KM)boundaryUncertain++;rejected++;}}
  }
  for(const item of items)if(!item.trainType)item.trainType=map.data.find(r=>String(r.train_number)===item.number)?.type||null;
  items.sort((a,b)=>a.distanceMinKm-b.distanceMinKm);
- return {items,state:failed?'partial':'checked',checked:selected.length,failed,rejected,totalCandidates:all.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null,baseUpdatedAt:base.lastUpdatedAt,
+ return {items,radiusKm:BEHIND_RADIUS_KM,boundaryUncertain,rateLimited,retryAfterSeconds:rateLimited?65:null,retryOffset:failed?offset:null,state:failed?'partial':'checked',checked:selected.length,failed,rejected,totalCandidates:all.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null,baseUpdatedAt:base.lastUpdatedAt,
  message:'Authorized feed candidates, verified in pages. Coverage depends on provider; empty results do not mean a clear track.'};
 }
 

@@ -3,14 +3,10 @@
 <div class="home-grid"><section class="card">
 <h2 data-hi="स्टेशन से स्टेशन" data-en="From → To" >स्टेशन से स्टेशन</h2>
 <form id="between-form">
-<label data-hi="कहाँ से" data-en="From Station" for="from">कहाँ से</label>
-<div class="station-picker"><input id="from" data-hi="स्टेशन / कोड / शहर" data-en="Station / code / city" placeholder="स्टेशन / कोड / शहर" aria-label="Station / code / city" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div>
-<button data-hi="⇅ बदलें" data-en="⇅ Swap" id="swap" type="button" class="swap">⇅ बदलें</button>
-<label data-hi="कहाँ तक" data-en="To Station" for="to">कहाँ तक</label>
-<div class="station-picker"><input id="to" data-hi="स्टेशन / कोड / शहर" data-en="Station / code / city" placeholder="स्टेशन / कोड / शहर" aria-label="Station / code / city" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required><div id="to-options" class="options" role="listbox"></div></div>
-<label data-hi="बोर्डिंग की तारीख" data-en="Boarding date" for="boarding-date">बोर्डिंग की तारीख</label>
-<input id="boarding-date" type="date" required>
-<button data-hi="ट्रेनें खोजें →" data-en="Search Trains →" id="route-search" class="primary wide">ट्रेनें खोजें →</button>
+<div class="compact-route"><div class="from-field"><label for="from" data-hi="कहाँ से" data-en="From">कहाँ से</label><div class="station-picker"><input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div></div>
+<button id="swap" type="button" class="swap" aria-label="Swap stations">⇄</button>
+<div class="to-field"><label for="to" data-hi="कहाँ तक" data-en="To">कहाँ तक</label><div class="station-picker"><input id="to" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="To Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required><div id="to-options" class="options" role="listbox"></div></div></div></div>
+<div class="compact-date"><label for="boarding-date" data-hi="यात्रा तारीख" data-en="Boarding date">यात्रा तारीख</label><input id="boarding-date" type="date" required><button id="route-search" class="primary" data-hi="ट्रेनें खोजें" data-en="Find trains">ट्रेनें खोजें</button></div>
 </form></section><div class="home-side"><section class="card">
 <h2 data-hi="ट्रेन नंबर / नाम" data-en="Train No / Train Name" >ट्रेन नंबर / नाम</h2>
 <form id="home-train-form" class="inline-form">
@@ -19,9 +15,9 @@
 </form></section><section class="card">
 <h2 data-hi="लाइव स्टेशन" data-en="Live Station" >लाइव स्टेशन</h2>
 <p data-hi="केवल स्टेशन पर या आसपास की पुष्टि की गई ट्रेनें" data-en="Only verified trains at or near this station" class="micro">केवल स्टेशन पर या आसपास की पुष्टि की गई ट्रेनें</p>
-<form id="home-station-form">
+<form id="home-station-form" class="inline-form">
 <div class="station-picker"><input id="home-station" data-hi="स्टेशन / कोड / शहर" data-en="Station / code / city" placeholder="स्टेशन / कोड / शहर" aria-label="Station / code / city" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="home-station-options" required><div id="home-station-options" class="options" role="listbox"></div></div>
-<button data-hi="स्टेशन खोजें" data-en="Search Station" id="home-station-search" class="secondary wide">स्टेशन खोजें</button>
+<button data-hi="स्टेशन खोजें" data-en="Search Station" id="home-station-search" class="secondary">स्टेशन खोजें</button>
 </form></section></div></div><a class="utility" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en">
 <b data-hi="PNR • आधिकारिक रेलवे वेबसाइट ↗" data-en="PNR • Official railway website ↗" >PNR • आधिकारिक रेलवे वेबसाइट ↗</b>
 </a><div id="route-results" aria-live="polite"></div></section><section data-page="search" hidden>
@@ -50,10 +46,10 @@
 </div>
 <p data-hi="ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।" data-en="Choose the date the train left its origin." class="micro">ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।</p>
 <div id="train-error"></div><p id="train-meta" class="micro"></p><div id="current-location"></div><div id="train-stats" class="stats"></div><div class="segmented train-tabs">
-<button data-hi="लाइव / रूट" data-en="Live / Route" data-train-tab="timeline" aria-pressed="true">लाइव / रूट</button>
+<button data-hi="लाइव / रूट" data-en="Live Route" data-train-tab="timeline" aria-pressed="true">लाइव / रूट</button>
 <button data-hi="पीछे की ट्रेनें" data-en="Behind Train" data-train-tab="behind" aria-pressed="false">पीछे की ट्रेनें</button>
 <button data-hi="लाइव ट्रेन मैप" data-en="Live Train Map" data-train-tab="map" aria-pressed="false">लाइव ट्रेन मैप</button>
-<button data-hi="कोच / सीटें" data-en="Coach / Seats" data-train-tab="coaches" aria-pressed="false">कोच / सीटें</button>
+<button data-hi="कोच / बर्थ" data-en="Coach / Berth" data-train-tab="coaches" aria-pressed="false">कोच / बर्थ</button>
 </div><div data-train-panel="timeline">
 <button data-hi="पूरा रूट देखें" data-en="Show Full Route" id="full-route" class="secondary">पूरा रूट देखें</button>
 <div class="timeline-head">
@@ -62,15 +58,15 @@
 <span data-hi="प्रस्थान" data-en="Departure" >प्रस्थान</span>
 </div><div id="timeline"></div></div><div data-train-panel="behind" hidden><div class="card">
 <h2 data-hi="आपकी ट्रेन के पीछे" data-en="Behind your train" >आपकी ट्रेन के पीछे</h2>
-<p data-hi="समान रूट और दिशा की ट्रेनें। API कवरेज और जाँच पर निर्भर; कोई 6-ट्रेन सीमा नहीं।" data-en="Same route and direction. Subject to API coverage and verification; no six-train limit." class="micro">समान रूट और दिशा की ट्रेनें। API कवरेज और जाँच पर निर्भर; कोई 6-ट्रेन सीमा नहीं।</p>
+<p data-hi="50 किमी पीछे • समान दिशा • सभी उपलब्ध उम्मीदवारों की स्वतः जाँच।" data-en="50 km behind • Same direction • Automatically checks all available candidates." class="micro">50 किमी पीछे • समान दिशा • सभी उपलब्ध उम्मीदवारों की स्वतः जाँच।</p>
 <button data-hi="↻ पीछे की ट्रेनें खोजें" data-en="↻ Find behind trains" id="behind-load" class="primary">↻ पीछे की ट्रेनें खोजें</button>
 </div><div id="behind-results"></div>
 <button data-hi="और ट्रेनें जाँचें" data-en="Check more trains" id="behind-more" class="secondary wide">और ट्रेनें जाँचें</button>
-</div><div data-train-panel="map" hidden><section class="card">
+</div><div data-train-panel="map" hidden><section id="map-shell" class="card">
 <h2 data-hi="लाइव ट्रेन मैप" data-en="Live Train Map" >लाइव ट्रेन मैप</h2>
 <p data-hi="आपकी ट्रेन और जाँची गई पीछे की ट्रेनें। केवल ताज़ा, रिपोर्ट किए गए स्थान।" data-en="Your train and verified behind trains. Fresh reported positions only." class="micro">आपकी ट्रेन और जाँची गई पीछे की ट्रेनें। केवल ताज़ा, रिपोर्ट किए गए स्थान।</p>
 <button data-hi="↻ मैप अपडेट करें" data-en="↻ Refresh map" id="map-refresh" class="secondary">↻ मैप अपडेट करें</button>
-<p id="map-note" class="micro"></p><div id="map-canvas"></div><div id="map-list"></div>
+<div class="map-toolbar"><label class="map-live-toggle"><input id="map-active" type="checkbox" checked><span id="map-mode"></span></label><button id="map-fit" class="secondary" data-hi="सभी दिखाएँ" data-en="Fit trains">सभी दिखाएँ</button><button id="map-expand" class="secondary" aria-pressed="false" data-hi="↗ बड़ा मैप" data-en="↗ Expand">↗ बड़ा मैप</button></div><p id="map-note" class="micro"></p><div class="radar-frame"><div class="radar-search"><input id="map-search" data-hi="ट्रेन / स्टेशन खोजें" data-en="Find a loaded train / station" placeholder="ट्रेन / स्टेशन खोजें" aria-label="Map search"><div id="map-search-results"></div></div><div class="radar-tools"><select id="map-layer" aria-label="Map layers"><option value="street" data-hi="सड़क मैप" data-en="Street">सड़क मैप</option><option value="satellite" data-hi="सैटेलाइट" data-en="Satellite">सैटेलाइट</option></select><button id="map-legend" class="secondary" aria-label="Legend">☷</button></div><div id="map-canvas"></div><p id="map-legend-text" hidden data-hi="रंग ट्रेन पहचान के लिए हैं। तीर रिपोर्ट की गई दिशा दिखाता है; बिना दिशा की रिपोर्ट पर गोल चिह्न।" data-en="Colours identify trains. Arrows show reported direction; circles mean direction unavailable.">रंग ट्रेन पहचान के लिए हैं। तीर रिपोर्ट की गई दिशा दिखाता है; बिना दिशा की रिपोर्ट पर गोल चिह्न।</p></div><a class="railradar-original" href="https://railradar.in/railradar" target="_blank" rel="noopener noreferrer" data-hi="RailRadar का मूल मैप खोलें ↗" data-en="Open original RailRadar map ↗">RailRadar का मूल मैप खोलें ↗</a><details id="map-list-panel"><summary data-hi="मैप की ट्रेन सूची" data-en="Trains on this map">मैप की ट्रेन सूची</summary><div id="map-list"></div></details>
 <button data-hi="और पीछे की ट्रेनें जाँचें" data-en="Check more behind trains" id="map-more" class="secondary wide">और पीछे की ट्रेनें जाँचें</button>
 </section></div><div data-train-panel="coaches" hidden><div class="card">
 <h2 data-hi="कोच और सीटों की बनावट" data-en="Coach and berth layout" >कोच और सीटों की बनावट</h2>
@@ -92,7 +88,7 @@
 <input id="endpoint" type="url" required>
 <button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
 </form><p id="settings-message" role="status"></p></section>
-<p data-hi="Indian Rail Live • संस्करण 7 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 7 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 7 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
+<p data-hi="Indian Rail Live • संस्करण 8 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 8 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 8 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
 </section></main><nav class="bottom-nav" aria-label="Navigation">
 <a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
 <a data-hi="◎ स्टेशन" data-en="◎ Station" href="#station" data-nav="station">◎ स्टेशन</a>

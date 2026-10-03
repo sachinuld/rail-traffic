@@ -5,7 +5,7 @@ export const storage={
 export class TrainDataService{
  constructor(){this.base=storage.get('rail-server',location.hostname==='localhost'||location.hostname==='127.0.0.1'?location.origin:'https://rail-traffic.onrender.com');this.cooldown=0;}
  configure(base){const u=new URL(base);if((u.protocol!=='https:'&&!['localhost','127.0.0.1'].includes(u.hostname))||u.username||u.password)throw Error('सही HTTPS सर्वर पता भरें। API key यहाँ न डालें।');this.base=u.origin;this.compatible=undefined;storage.set('rail-server',this.base);}
- async config(){const c=await this.fetch('/api/config',{});this.compatible=c.version>=7;return c;}
+ async config(){const c=await this.fetch('/api/config',{});this.compatible=c.version>=8;return c;}
  async fetch(path,params={},signal){
   if(Date.now()<this.cooldown&&path!=='/api/config'){const e=Error('अनुरोध सीमा: थोड़ी देर बाद Retry करें।');e.status=429;throw e;}
   const u=new URL(path,this.base);for(const [k,v]of Object.entries(params))if(v!==null&&v!==undefined)u.searchParams.set(k,String(v));

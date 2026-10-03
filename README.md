@@ -1,4 +1,4 @@
-# Indian Rail Live — Version 7
+# Indian Rail Live — Version 8
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.
 
@@ -10,9 +10,9 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 2. Extract हुए folder को खोलकर उसकी सभी files चुनें (ZIP या पूरा outer folder नहीं).
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
-5. `/health` must show `rail-live-7`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 7.
-7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 7 never imports or serves them. Old subdirectories are unused by the flat package.
+5. `/health` must show `rail-live-8`. GitHub Pages deployment must finish too.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 8.
+7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 8 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
 Render: build command `npm install` (or leave empty if supported), start command `npm start`.
@@ -32,9 +32,11 @@ Never upload actual keys to GitHub or enter them in frontend settings.
 
 Live Station / Non-Stop: provider station-board candidates are checked against individual live runs. A train must have an update no older than 5 minutes, a running state, an explicit route through the selected station, a confirmed stop/non-stop flag, and either a reported arrival there or verified coordinates within the radius. Predicted/diverted/unknown positions are excluded. Geographic distances are straight-line distances, not rail-track distances. A departure from a nearby station alone does not prove current proximity. The board provider's +/-4-hour candidate window may not cover all trains.
 
-Behind Train: no total six-train limit and no 100-km cutoff. Candidates come from the authorized legacy map API and must be separately verified with fresh individual live runs. Same-direction contiguous shared corridor, comparable timestamps, and non-overlapping route-distance ranges are required. Order within the same segment cannot be proven and is omitted. Distances are ranges, not invented exact GPS separations. Eight candidates are checked per page; use Check more trains to reach all candidates returned by the provider. Provider omissions, route branches and uncertain ordering mean this is not a guaranteed complete list. Partial failures are shown; refresh to retry. Automatic refresh resets the checked page to the current first page so old candidates are not silently presented as fresh.
+Behind Train: fixed 50-km route-distance radius. No total six-train limit. All candidates supplied by the authorized API that could be inside the radius are automatically checked in eight-candidate batches. The frontend follows every page automatically; no repeated More button is needed. Failed pages retain a resume cursor; rate limits pause checks and the next permitted refresh resumes them. Same-direction contiguous shared corridor, fresh comparable timestamps, and non-overlapping route intervals are required. Only a verified distance range entirely within 50 km is included. Ranges crossing the boundary are explicitly counted as uncertain, not silently claimed to be within 50 km. Provider omissions and ambiguous ordering mean no guarantee of every physical train.
 
-Map: selected train plus the verified behind trains loaded so far. Only fresh reported coordinates (or fresh reported arrival coordinates at a station) are plotted; no interpolation, estimated motion, or stale symbols. Speed and bearing appear only if supplied. Not a nationwide unverified feed display. Tap a marker for details and Full Status. Route comes from the authorized geometry endpoint. Basemap: OpenStreetMap with attribution using vendored Leaflet 1.9.4. No tile prefetch/offline tile cache. Production traffic must comply with the OSM tile usage policy; select a suitable commercial tile provider before large-scale use. Tile failure leaves a clear error and accessible train-list links.
+Map: screenshot-inspired compact search, coloured heading symbols, right-hand controls, Street/Satellite selector, fit-trains control and expanded view. A 60-second active-refresh switch is enabled by default. The geographical map remains visible even when train coordinates are unavailable; no train positions are invented. Only the selected train and verified behind trains are plotted, not the entire unverified national legacy feed. Marker identity and pan/zoom are preserved on refresh. The original RailRadar website map is linked separately; this is not an embedded copy of its proprietary site. Heading is drawn only when supplied; colours identify trains, not classes or delay. Map search covers loaded trains and their reported station names.
+
+Street basemap: OpenStreetMap with attribution and vendored Leaflet. Satellite is optional: set SATELLITE_TILE_URL to an authorized HTTPS raster tile template containing {z}, {x}, {y}, plus SATELLITE_ATTRIBUTION to the required provider attribution. Any access token stays in the server environment and is never returned in /api/config. The /api/satellite-tile proxy validates tile indices and enforces a 120/minute request ceiling. It does not scrape or copy RailRadar map tiles. Example for a properly licensed ArcGIS account: https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?token=YOUR_AUTHORIZED_TOKEN . Check your provider's license, token permissions and attribution requirements before configuring. Without a configured source, satellite selection explicitly reports unavailable and retains the street map. Production satellite credentials and external tiles have not been verified in this environment.
 
 Coach layout: provider `blueprints[classType]` cabin/main/side seats only. No generated numbering for 1A/2A/3A/SL/CC/EC/GEN. Missing layouts show unavailable; partial layouts are explicitly marked; duplicate seat IDs are rejected. General coaches may have no reserved-seat blueprint. Composition is provider schedule data, not a guarantee about today's physical rake or seat availability.
 
@@ -54,9 +56,13 @@ Endpoints: /api/config, /api/stations, /api/trains, /api/between, /api/status, /
 Station and nearby endpoints accept nonnegative `offset`; responses have `nextOffset` or null. Page counters report candidates checked, not trains asserted to be nearby.
 Backend enforces a static file allowlist; source, environment and API keys are not served. GitHub Pages only hosts public source/assets, never private credentials. Future auth/favourites/alerts use the existing extensions module.
 
+## UI refinements
+
+Compact side-by-side From/To search, consistent Noto Sans Devanagari/system typography, four equal parallel tabs at mobile widths, compact 12px seat numbers and 8px type codes. Sleeping bays place the supplied main-berth groups opposite side berths with an aisle; chair-car groups preserve the supplied arrangement. This is a labelled schematic based on provider blueprints, not a certified engineering drawing.
+
 ## Validation
 
-Automated tests cover proximity exclusion, stale/future/predicted positions, same-direction corridor ordering, pagination past six and 100 km, provider blueprint integrity, HTTP normalization, CORS, and private-file access. Browser checks use isolated test fixtures, not shipped application fallback data. Authenticated production RailRadar data and optional paid Google Maps require your configured account and remain deployment-dependent.
+Automated tests cover proximity exclusion, stale/future/predicted positions, same-direction corridor ordering, pagination past six, the 50-km boundary and quota-resume cursors, provider blueprint integrity, HTTP normalization, CORS, and private-file access. Browser checks use isolated test fixtures, not shipped application fallback data. Authenticated production RailRadar data and optional paid Google Maps require your configured account and remain deployment-dependent.
 
 ## Primary references
 

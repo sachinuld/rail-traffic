@@ -1,15 +1,14 @@
-संस्करण 7 — आसान अपलोड
+संस्करण 8
 
-1. ZIP को Extract All करें।
-2. निकले folder के अंदर सभी files चुनें। इस ZIP में subfolders नहीं हैं।
-3. GitHub → Add file → Upload files → choose your files → सारी files → Commit changes.
-4. Render → Manual Deploy → Deploy latest commit.
-5. Health में rail-live-7 और ऐप Settings में Version 7 देखें।
-6. ऐप में Ctrl+Shift+R दबाएँ।
+ZIP को Extract All करें। अंदर की सभी files एक साथ GitHub root में अपलोड करें।
+Add file → Upload files → choose your files → सभी files → Commit changes.
+Render → Manual Deploy → Deploy latest commit.
+Health: rail-live-8. ऐप: Ctrl+Shift+R.
+किसी नए folder की जरूरत नहीं है।
 
-पुराने services/ui/fonts folders इस flat संस्करण में इस्तेमाल नहीं होते।
-पुराने demo.js और ui/demo.js को हटा सकते हैं; नया ऐप इन्हें इस्तेमाल नहीं करता।
-सर्वर पर RAILRADAR_API_KEY पहले की तरह रखें; ZIP/GitHub में key न डालें।
-STATION_RADIUS_KM वैकल्पिक है; default 5 km.
-पीछे की अतिरिक्त ट्रेनें देखने के लिए “और ट्रेनें जाँचें” दबाएँ।
-API से प्रमाणित लोकेशन/सीट बनावट न मिलने पर unavailable दिखेगा।
+50 किमी पीछे की उपलब्ध संभावित ट्रेनों की जाँच अपने-आप चलेगी।
+API सीमा आने पर शेष जाँच बाद में जारी होगी।
+मैप में सक्रिय refresh, search, दिशा-चिह्न, zoom और बड़ा दृश्य हैं।
+Satellite के लिए अधिकृत imagery connection जरूरी है; बिना connection के सड़क मैप रहेगा।
+असली RailRadar का पूरा मैप खोलने का लिंक भी ऐप में है।
+API keys पहले की तरह Render Environment में रखें, GitHub में नहीं।
