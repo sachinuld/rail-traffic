@@ -16,7 +16,7 @@ test('nonstop requires explicit route pass-through and proximity',()=>{
  const d=run('10000',15);assert.equal(nearStation(d,'S15',5,now).proximity,'passing');assert.equal(nearStation(d,'OTHER',5,now),null);
  d.currentLocation.isDiverted=true;assert.equal(nearStation(d,'S15',5,now),null);
 });
-test('all fifteen verified trains inside 50 km remain accessible without a six-train cap',async()=>{
+test('candidate verification uses bounded pages (the UI caps combined results at ten)',async()=>{
  const base=run();base.route.forEach((s,i)=>s.distance=i*2);const feed=Array.from({length:15},(_,i)=>({train_number:String(11000+i),current_station:'S'+i,next_station:'S'+(i+1)}));
  assert.equal(candidates(base,feed,undefined,now).length,15);
  const request=async path=>path.includes('live-map')?{success:true,data:feed}:{success:true,data:(()=>{const d=run(path.match(/trains\/(\d+)/)[1],Number(path.match(/trains\/(\d+)/)[1])-11000);d.route.forEach((s,i)=>s.distance=i*2);return d;})()};
@@ -34,7 +34,15 @@ test('blueprints use only supplied seats, flag incomplete data, reject duplicate
 test('50km boundary is strict, and partial quota failures retain retry cursor',async()=>{
  const base=run(),feed=[{train_number:'11013',current_station:'S13',next_station:'S14'},{train_number:'11014',current_station:'S14',next_station:'S15'}];
  const request=async path=>{if(path.includes('live-map'))return {success:true,data:feed};const d=run(path.includes('11013')?'11013':'11014',path.includes('11013')?13:14);d.currentLocation.status='departed';return {success:true,data:d};};
- const d=await discover(base,request,now);assert.deepEqual(d.items.map(r=>r.number),['11014']);assert.equal(d.boundaryUncertain,1);
+ const d=await discover(base,request,now,0,50);assert.deepEqual(d.items.map(r=>r.number),['11014']);assert.equal(d.boundaryUncertain,1);
  const partial=await discover(base,async path=>{if(path.includes('live-map'))return {success:true,data:feed};const e=Error('quota');e.status=429;throw e;},now);
  assert.equal(partial.rateLimited,true);assert.equal(partial.retryOffset,0);assert.equal(partial.items.length,0);
+});
+
+test('100 KM includes verified trains outside 50 KM, excludes farther trains and validates radius',async()=>{
+ const base=run(),feed=[11,12,14].map(i=>({train_number:String(11000+i),current_station:'S'+i,next_station:'S'+(i+1)}));
+ const request=async path=>path.includes('live-map')?{success:true,data:feed}:{success:true,data:run(path.match(/trains\/(\d+)/)[1],Number(path.match(/trains\/(\d+)/)[1])-11000)};
+ const wide=await discover(base,request,now,0,100),narrow=await discover(base,request,now,0,50);
+ assert.deepEqual(wide.items.map(r=>r.number),['11014','11012','11011']);assert.deepEqual(narrow.items.map(r=>r.number),['11014']);assert.ok(wide.items.length<=10);assert.equal(wide.radiusKm,100);
+ await assert.rejects(()=>discover(base,request,now,0,101),{status:400});
 });

@@ -1,14 +1,14 @@
-संस्करण 8
+Indian Rail Live — Version 9
 
-ZIP को Extract All करें। अंदर की सभी files एक साथ GitHub root में अपलोड करें।
-Add file → Upload files → choose your files → सभी files → Commit changes.
-Render → Manual Deploy → Deploy latest commit.
-Health: rail-live-8. ऐप: Ctrl+Shift+R.
-किसी नए folder की जरूरत नहीं है।
+1. ZIP को Extract All करें।
+2. निकले folder के अंदर की सभी files GitHub rail-traffic repository की root में upload करें। ZIP या बाहरी folder upload न करें। पुराने समान नाम वाले files replace करें।
+3. Commit changes करें और GitHub Pages deployment पूरा होने दें।
+4. Render → rail-traffic → Manual Deploy → Deploy latest commit करें।
+5. https://rail-traffic.onrender.com/health पर rail-live-9 दिखना चाहिए।
+6. ऐप बंद करके फिर खोलें। जरूरत हो तो hard refresh करें। More / सेटिंग्स में Version 9 दिखेगा।
 
-50 किमी पीछे की उपलब्ध संभावित ट्रेनों की जाँच अपने-आप चलेगी।
-API सीमा आने पर शेष जाँच बाद में जारी होगी।
-मैप में सक्रिय refresh, search, दिशा-चिह्न, zoom और बड़ा दृश्य हैं।
-Satellite के लिए अधिकृत imagery connection जरूरी है; बिना connection के सड़क मैप रहेगा।
-असली RailRadar का पूरा मैप खोलने का लिंक भी ऐप में है।
-API keys पहले की तरह Render Environment में रखें, GitHub में नहीं।
+सिर्फ frontend बदलने से 100 KM feature नहीं चलेगा; Render server भी update करना जरूरी है।
+RAILRADAR_API_KEY Render Environment में पहले से सेट है तो उसे बनाए रखें। कोई key इस ZIP या frontend में न डालें।
+
+बदलाव: duplicate forms हटे; एक RailRadar link (कोई blank embedded map नहीं); 50/100 KM, अधिकतम 10 verified trains; train number दबाने पर details; बेहतर typography, loading, error और retry।
+डेटा provider से उपलब्ध होने पर ही दिखेगा। खाली स्थान भरने के लिए fake data नहीं बनाया गया है।
