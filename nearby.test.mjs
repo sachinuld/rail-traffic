@@ -22,7 +22,7 @@ test('opposite direction and diverging route rejected',()=>{
 test('ambiguous loops, diversion, predicted location and completed runs rejected',()=>{
  for(const mutate of [d=>d.route[1].stationCode='S0',d=>d.currentLocation.isDiverted=true,d=>d.currentLocation.isActualPosition=false,d=>d.status='completed']){const b=run('10001',8);mutate(b);assert.equal(compare(run('10000',5),b,now),null);}
 });
-test('candidate discovery deduplicates, excludes self and reverse, bounds radius and count',()=>{
+test('candidate discovery deduplicates and excludes self and reverse',()=>{
  const rows=Array.from({length:11},(_,i)=>({train_number:String(10001+i),current_station:'S'+i,next_station:'S'+(i+1)}));rows.push(rows[0],{train_number:'10000',current_station:'S5',next_station:'S6'},{train_number:'99999',current_station:'S8',next_station:'S7'});
  const result=candidates(run('10000',5),rows,6,now);assert.equal(result.length,5);assert.equal(new Set(result).size,5);assert(!result.includes('10000'));assert(!result.includes('99999'));
 });
@@ -50,7 +50,7 @@ test('HTTP endpoints keep normal status working and protect cross-origin access'
  }finally{globalThis.fetch=nativeFetch;server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
 
-test('only nearest six behind candidates selected; ahead cannot consume slots',()=>{
+test('an explicit caller page size selects nearest candidates; ahead cannot consume slots',()=>{
  const base=run('10000',9),feed=Array.from({length:11},(_,i)=>({train_number:String(11000+i),current_station:'S'+i,next_station:'S'+(i+1)}));
  assert.deepEqual(candidates(base,feed,6,now),['11008','11007','11006','11005','11004','11003']);
 });

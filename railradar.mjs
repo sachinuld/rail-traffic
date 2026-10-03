@@ -23,7 +23,7 @@ export function normalize(payload,number,date){
  if(payload?.success!==true||!d||d.isLive!==true||d.trainNumber!==number||d.startDate!==date||!Number.isFinite(Date.parse(d.lastUpdatedAt)))throw Error('Invalid provider response');
  const route=Array.isArray(d.route)?d.route:[];
  const current=route.find(s=>s.stationCode===d.currentLocation?.stationCode);
- return {demo:false,updatedAt:d.lastUpdatedAt,source:'RailRadar',train:{number:d.trainNumber,name:d.trainName||d.train?.name||number,routeName:[d.train?.source?.name,d.train?.destination?.name].filter(Boolean).join(' → '),currentStation:current?.stationName||d.currentLocation?.stationCode||'उपलब्ध नहीं',nextStation:d.nextHalt?.stationName||d.nextHalt?.stationCode||'उपलब्ध नहीं',delayMinutes:Number.isFinite(d.delayMinutes)?d.delayMinutes:null},nearby:[],stations:route.map(stationDetails)};
+ return {updatedAt:d.lastUpdatedAt,source:'RailRadar',train:{number:d.trainNumber,name:d.trainName||d.train?.name||number,routeName:[d.train?.source?.name,d.train?.destination?.name].filter(Boolean).join(' → '),currentStation:current?.stationName||d.currentLocation?.stationCode||'उपलब्ध नहीं',nextStation:d.nextHalt?.stationName||d.nextHalt?.stationCode||'उपलब्ध नहीं',delayMinutes:Number.isFinite(d.delayMinutes)?d.delayMinutes:null},nearby:[],stations:route.map(stationDetails)};
 }
 export async function getStatus(number,date,key,fetcher=fetch){
  const url=new URL('https://api.railradar.in/v1/trains/'+number+'/live');url.searchParams.set('date',date);

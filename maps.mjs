@@ -7,7 +7,7 @@ export async function googleMap(number,date,zoom){
  const id=number+date+zoom,c=cache.get(id);if(c&&Date.now()-c.time<60000)return c.bytes;
  requests=requests.filter(t=>Date.now()-t<60000);if(requests.length>=10){const e=Error('Map rate limit. Retry after one minute.');e.status=429;throw e;}requests.push(Date.now());
  const l=(await railData.location(number,date)).data;
- const pos=l.position||l.lastReportedPoint;
+ const pos=l.position;
  if(!pos){const e=Error('Train coordinates unavailable');e.status=404;throw e;}
  const u=new URL('https://maps.googleapis.com/maps/api/staticmap');
  u.searchParams.set('size','640x400');u.searchParams.set('scale','2');

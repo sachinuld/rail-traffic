@@ -1,7 +1,15 @@
-MOBILE INSTALL:
-1. Host this folder on any HTTPS web host.
-2. Open the site in Chrome on Android.
-3. Use Chrome menu -> Add to Home screen / Install app.
-4. The Rail Traffic icon will appear on the phone and open standalone.
+संस्करण 7 — आसान अपलोड
 
-NOTE: The included train data is DEMO data. Real railway live positions require an authorized live data provider/backend.
+1. ZIP को Extract All करें।
+2. निकले folder के अंदर सभी files चुनें। इस ZIP में subfolders नहीं हैं।
+3. GitHub → Add file → Upload files → choose your files → सारी files → Commit changes.
+4. Render → Manual Deploy → Deploy latest commit.
+5. Health में rail-live-7 और ऐप Settings में Version 7 देखें।
+6. ऐप में Ctrl+Shift+R दबाएँ।
+
+पुराने services/ui/fonts folders इस flat संस्करण में इस्तेमाल नहीं होते।
+पुराने demo.js और ui/demo.js को हटा सकते हैं; नया ऐप इन्हें इस्तेमाल नहीं करता।
+सर्वर पर RAILRADAR_API_KEY पहले की तरह रखें; ZIP/GitHub में key न डालें।
+STATION_RADIUS_KM वैकल्पिक है; default 5 km.
+पीछे की अतिरिक्त ट्रेनें देखने के लिए “और ट्रेनें जाँचें” दबाएँ।
+API से प्रमाणित लोकेशन/सीट बनावट न मिलने पर unavailable दिखेगा।

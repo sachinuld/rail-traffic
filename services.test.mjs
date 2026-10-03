@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {boardRow,locationOf} from './services/normalize.mjs';
-import {demoRequest} from './ui/demo.js';
+import {boardRow,locationOf} from './normalize.mjs';
 test('unknown halting status is not silently classified as non-stop',()=>{
  const row=boardRow({train:{number:'12345'},stop:{arrival:null},live:{type:'upcoming',actualArrivalTime:'2026-10-02T12:00:00+05:30'}},'CNB');
  assert.equal(row.isHalt,null);assert.equal(row.actualArrival,null);
@@ -14,12 +13,6 @@ test('departed station is not promoted to exact current train coordinates',()=>{
  const l=locationOf({currentLocation:{stationCode:'A',status:'departed'},route:[{stationCode:'A',lat:26,lng:79},{stationCode:'B',lat:27,lng:80}]});
  assert.equal(l.position,null);assert.deepEqual(l.lastReportedPoint,{lat:26,lng:79});assert.equal(l.next.code,'B');
 });
-test('demo responses always declare demo and do not mix live metadata',async()=>{
- for(const path of ['/api/status','/api/station','/api/coaches','/api/nearby','/api/location','/api/between']){
- const r=await demoRequest(path,{train:'12420',station:'PHD',from:'ETW',to:'CNB'});
- assert.equal(r.mode,'demo');assert.equal(r.source,'Illustrative fixtures');
- }
-});
 test('new API endpoints normalize schedule/search and verify non-stop against route',async()=>{
  process.env.NODE_ENV='test';process.env.RAILRADAR_API_KEY='fixture-key';
  const real=globalThis.fetch;
@@ -28,6 +21,7 @@ test('new API endpoints normalize schedule/search and verify non-stop against ro
  if(u.pathname.endsWith('/search/stations'))data=[{code:'CNB',name:'Kanpur Central',city:'Kanpur'}];
  else if(u.pathname.endsWith('/search/trains'))data=[{number:'12345',name:'Test',source:'A',destination:'B'}];
  else if(u.pathname.endsWith('/stations/CNB/live'))data={station:{code:'CNB',name:'Kanpur'},trains:[{train:{number:'12345',name:'Test'},stop:{arrival:null},live:{type:'upcoming'}}]};
+ else if(u.pathname.endsWith('/trains/12345/live'))data={trainNumber:'12345',startDate:'2026-10-03',lastUpdatedAt:new Date().toISOString(),isLive:true,status:'running',currentLocation:{stationCode:'CNB',status:'arrived'},route:[{stationCode:'CNB',stationName:'Kanpur',isHalt:false}]};
  else if(u.pathname.endsWith('/trains/12345'))data={train:{number:'12345',name:'Test',runDays:['mon']},route:[{station:{code:'CNB',name:'Kanpur'},isHalt:false}]};
  else throw Error('Unexpected endpoint '+u.pathname);
  return new Response(JSON.stringify({success:true,data}));
