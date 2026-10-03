@@ -1,14 +1,14 @@
-Indian Rail Live — Version 9.1
+Indian Rail Live — Version 9.2
 
 1. ZIP को Extract All करें।
 2. निकले folder के अंदर की सभी files GitHub rail-traffic repository की root में upload करें। ZIP या बाहरी folder upload न करें। पुराने समान नाम वाले files replace करें।
 3. Commit changes करें और GitHub Pages deployment पूरा होने दें।
 4. Render → rail-traffic → Manual Deploy → Deploy latest commit करें।
-5. https://rail-traffic.onrender.com/health पर rail-live-9 दिखना चाहिए।
-6. ऐप बंद करके फिर खोलें। जरूरत हो तो hard refresh करें। More / सेटिंग्स में Version 9.1 दिखेगा।
+5. https://rail-traffic.onrender.com/health पर rail-live-9.2 दिखना चाहिए।
+6. ऐप बंद करके फिर खोलें। जरूरत हो तो hard refresh करें। More / सेटिंग्स में Version 9.2 दिखेगा।
 
-सिर्फ frontend बदलने से 100 KM feature नहीं चलेगा; Render server भी update करना जरूरी है।
+अगले 4 घंटे की Live Station सूची के लिए Render server भी Version 9.2 में update करना जरूरी है।
 RAILRADAR_API_KEY Render Environment में पहले से सेट है तो उसे बनाए रखें। कोई key इस ZIP या frontend में न डालें।
 
-बदलाव: अंदर के duplicate forms हटे; Home की search सुविधाएँ वापस; एक RailRadar link (कोई blank embedded map नहीं); 50/100 KM, अधिकतम 10 verified trains; train number दबाने पर details; बेहतर typography, loading, error और retry।
+बदलाव: ऊपर From/To और उसके बगल में Train Search; नीचे दाईं ओर Live Station; अगले 4 घंटे के आगमन और Non-Stop विवरण; अंदर duplicate forms हटे; एक RailRadar link (कोई blank embedded map नहीं); 50/100 KM, अधिकतम 10 verified trains; train number दबाने पर details; बेहतर typography, loading, error और retry।
 डेटा provider से उपलब्ध होने पर ही दिखेगा। खाली स्थान भरने के लिए fake data नहीं बनाया गया है।

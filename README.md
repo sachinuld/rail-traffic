@@ -1,4 +1,4 @@
-# Indian Rail Live — Version 9.1
+# Indian Rail Live — Version 9.2
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.
 
@@ -10,9 +10,9 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 2. Extract हुए folder को खोलकर उसकी सभी files चुनें (ZIP या पूरा outer folder नहीं).
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
-5. `/health` must show `rail-live-9`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.1.
-7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.1 never imports or serves them. Old subdirectories are unused by the flat package.
+5. `/health` must show `rail-live-9.2`. GitHub Pages deployment must finish too.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.2.
+7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.2 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
 Render: build command `npm install` (or leave empty if supported), start command `npm start`.
@@ -30,7 +30,8 @@ Never upload actual keys to GitHub or enter them in frontend settings.
 
 ## Accuracy and limits
 
-Live Station / Non-Stop: provider station-board candidates are checked against individual live runs. A train must have an update no older than 5 minutes, a running state, an explicit route through the selected station, a confirmed stop/non-stop flag, and either a reported arrival there or verified coordinates within the radius. Predicted/diverted/unknown positions are excluded. Geographic distances are straight-line distances, not rail-track distances. A departure from a nearby station alone does not prove current proximity. The board provider's +/-4-hour candidate window may not cover all trains.
+Live Station / Non-Stop: the four-hour provider board supplies candidates; each is checked against a fresh individual live run and an explicit route halt/non-stop flag. Include verified current proximity or an upcoming visit within the next four hours (expected time preferred; scheduled fallback explicitly labelled). Passed, unrelated, diverted and stale runs are excluded. Future visits are never labelled as current proximity. Pages verify eight candidates; Check more trains continues coverage within API limits. Missing provider coverage is not fabricated.
+
 
 Behind Train: selectable 50 / 100 KM route-distance radius, default 100. The screen displays at most 10 unique verified trains; it stops fetching more pages once ten are collected. Candidates are verified in bounded pages of eight. Cards are collapsed initially; tap the prominent train number to reveal available live details. Failed pages keep a retry cursor. A missing/stale base report is an unavailable state, not an empty successful search. Partial failures and quota cooldowns remain visible.
 
@@ -58,7 +59,7 @@ Backend enforces a static file allowlist; source, environment and API keys are n
 
 ## UI refinements
 
-Home contains From/To, Train No/Name and Live Station search forms, plus PNR. Interior result screens do not repeat the search forms. Bottom navigation shortcuts focus the matching Home form. A single contextual Search a train first link appears only before selecting a train.
+Home places From/To at top-left, Train No/Name alongside, and Live Station below on the right, including mobile widths. PNR is retained. Interior result screens do not repeat the search forms. Bottom navigation shortcuts focus the matching Home form. A single contextual Search a train first link appears only before selecting a train.
 
 
 Compact side-by-side From/To search, consistent Noto Sans Devanagari/system typography, four equal parallel tabs at mobile widths, compact 13px seat numbers and 10px type codes. Sleeping bays place the supplied main-berth groups opposite side berths with an aisle; chair-car groups preserve the supplied arrangement. This is a labelled schematic based on provider blueprints, not a certified engineering drawing.

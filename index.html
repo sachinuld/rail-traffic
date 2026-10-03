@@ -1,6 +1,6 @@
 <!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155f9d"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>Indian Rail Live</title></head><body><header class="appbar"><a href="#home" class="brand"><span class="brand-icon">▤</span><span>INDIAN RAIL LIVE</span></a><div class="header-actions"><select id="language" aria-label="Language / भाषा"><option value="hi">हिंदी</option><option value="en">English</option></select><button id="theme-toggle" class="icon-button" aria-label="Theme / रंग">◐</button></div></header><div id="connection" class="connection" role="status"></div><main><section data-page="home">
 <h1 data-hi="आज कहाँ जाना है?" data-en="Where are you heading?" >आज कहाँ जाना है?</h1>
-<div class="home-grid"><section class="card">
+<div class="home-grid"><section class="card" id="home-route-section">
 <h2 data-hi="स्टेशन से स्टेशन" data-en="From → To" >स्टेशन से स्टेशन</h2>
 <form id="between-form">
 <div class="compact-route"><div class="from-field"><label for="from" data-hi="कहाँ से" data-en="From">कहाँ से</label><div class="station-picker"><input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div></div>
@@ -10,7 +10,7 @@
 </form></section><section class="card" id="home-train-section"><h2 data-hi="ट्रेन नंबर / नाम" data-en="Train No / Train Name">ट्रेन नंबर / नाम</h2><form id="train-search-form" class="inline-form">
 <input id="train-query" data-hi="ट्रेन नंबर या नाम" data-en="Train number or name" placeholder="ट्रेन नंबर या नाम" aria-label="Train number or name" autocomplete="off" required>
 <button data-hi="खोजें" data-en="Search" id="train-search" class="primary">खोजें</button>
-</form></section><section class="card" id="home-station-section"><h2 data-hi="लाइव स्टेशन" data-en="Live Station">लाइव स्टेशन</h2><p class="micro" data-hi="स्टेशन पर या आसपास की पुष्टि की गई ट्रेनें" data-en="Verified trains at or near your station">स्टेशन पर या आसपास की पुष्टि की गई ट्रेनें</p><form id="station-form" class="inline-form">
+</form></section><section class="card" id="home-station-section"><h2 data-hi="लाइव स्टेशन" data-en="Live Station">लाइव स्टेशन</h2><p class="micro" data-hi="अगले 4 घंटे की आने वाली और Non-Stop ट्रेनें" data-en="Arrivals and non-stop trains in the next 4 hours">अगले 4 घंटे की आने वाली और Non-Stop ट्रेनें</p><form id="station-form" class="inline-form">
 <div class="station-picker"><input id="station-query" data-hi="स्टेशन / कोड / शहर" data-en="Station / code / city" placeholder="स्टेशन / कोड / शहर" aria-label="Station / code / city" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="station-query-options" required><div id="station-query-options" class="options" role="listbox"></div></div>
 <button data-hi="खोजें" data-en="Search" id="station-search" class="primary">खोजें</button>
 </form></section></div><a class="utility" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en">
@@ -21,7 +21,7 @@
 <h1 data-hi="लाइव स्टेशन" data-en="Live Station" >लाइव स्टेशन</h1>
 <button data-hi="↻ अपडेट" data-en="↻ Refresh" id="station-refresh" class="secondary">↻ अपडेट</button>
 </div><h2 id="station-title"></h2><div class="segmented">
-<button data-hi="रुकने वाली ट्रेनें" data-en="Live Station Trains" data-board="halt" aria-pressed="true">रुकने वाली ट्रेनें</button>
+<button data-hi="आगमन • अगले 4 घंटे" data-en="Arrivals • Next 4 hours" data-board="halt" aria-pressed="true">आगमन • अगले 4 घंटे</button>
 <button data-hi="बिना रुके गुजरने वाली" data-en="Non-Stop Trains" data-board="nonstop" aria-pressed="false">बिना रुके गुजरने वाली</button>
 </div><div id="station-notice" role="status"></div><div id="station-results"></div>
 <button data-hi="और ट्रेनें जाँचें" data-en="Check more trains" id="station-more" class="secondary wide">और ट्रेनें जाँचें</button>
@@ -72,7 +72,7 @@
 <input id="endpoint" type="url" required>
 <button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
 </form><p id="settings-message" role="status"></p></section>
-<p data-hi="Indian Rail Live • संस्करण 9.1 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.1 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.1 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
+<p data-hi="Indian Rail Live • संस्करण 9.2 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.2 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.2 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
 </section></main><nav class="bottom-nav" aria-label="Navigation">
 <a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
 <a data-hi="◎ स्टेशन" data-en="◎ Station" href="#station" data-nav="station">◎ स्टेशन</a>
