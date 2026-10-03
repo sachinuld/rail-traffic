@@ -1,4 +1,4 @@
-# Indian Rail Live — Version 9.2
+# Indian Rail Live — Version 9.3
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.
 
@@ -10,9 +10,9 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 2. Extract हुए folder को खोलकर उसकी सभी files चुनें (ZIP या पूरा outer folder नहीं).
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
-5. `/health` must show `rail-live-9.2`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.2.
-7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.2 never imports or serves them. Old subdirectories are unused by the flat package.
+5. `/health` must show `rail-live-9.3`. GitHub Pages deployment must finish too.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.3.
+7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.3 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
 Render: build command `npm install` (or leave empty if supported), start command `npm start`.
@@ -75,3 +75,7 @@ https://railradar.in/docs/legacy-live-map
 https://railradar.in/docs/train-coaches
 https://railradar.in/docs/station-coach-position
 
+
+## v9.3 rate-limit correction
+
+Provider cache keys canonicalize query ordering. Concurrent station-page requests share work and successful pages are reused for 45 seconds. HTTP 429 stops further candidate verification and propagates Retry-After; the upstream cooldown prevents repeat requests. Cached fresh responses remain usable. Behind checks one bounded page per action; use Resume remaining checks to extend the list up to ten. Existing rows survive refresh errors. Retry buttons show a countdown. This reduces avoidable calls; it cannot override provider account quotas.

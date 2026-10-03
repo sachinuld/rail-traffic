@@ -70,7 +70,7 @@ export async function discover(base,request,now=Date.now(),offset=0,radius=BEHIN
  if(!context(base,now))return {items:[],checked:0,failed:0,totalCandidates:0,nextOffset:null,state:'unavailable',message:'आपकी ट्रेन का ताज़ा, तुलनीय रूट डेटा नहीं मिला। पहले लाइव स्थिति फिर देखें।'};
  const map=await request('/legacy/trains/live-map');
  if(map?.success!==true||!Array.isArray(map.data))throw Error('Invalid map response');
- const all=candidates(base,map.data,Infinity,now,radius),selected=all.slice(offset,offset+8),items=[];let failed=0,rejected=0,rateLimited=false,boundaryUncertain=0;
+ const all=candidates(base,map.data,Infinity,now,radius),selected=all.slice(offset,offset+8),items=[];let failed=0,rejected=0,rateLimited=false,boundaryUncertain=0,retryAfterSeconds=null,checked=0;
  // Bounded parallelism; provider quota and shared caching are enforced by request().
  for(let i=0;i<selected.length;i+=3){
  const results=await Promise.allSettled(selected.slice(i,i+3).map(async n=>{
@@ -79,11 +79,12 @@ export async function discover(base,request,now=Date.now(),offset=0,radius=BEHIN
  if(p?.success!==true||d?.trainNumber!==n||!/^\d{4}-\d{2}-\d{2}$/.test(d?.startDate||''))throw Error('Wrong run');
  return compare(base,d,Date.now());
  }));
- for(const result of results){if(result.status==='rejected'){failed++;if(result.reason?.status===429)rateLimited=true;}else if(result.value?.relation==='behind'&&result.value.distanceMaxKm<=radius)items.push(result.value);else{if(result.value?.relation==='behind'&&result.value.distanceMinKm<=radius)boundaryUncertain++;rejected++;}}
+ checked+=results.length;for(const result of results){if(result.status==='rejected'){failed++;if(result.reason?.status===429){rateLimited=true;retryAfterSeconds=Math.max(retryAfterSeconds||0,result.reason.retryAfterSeconds||120);}}else if(result.value?.relation==='behind'&&result.value.distanceMaxKm<=radius)items.push(result.value);else{if(result.value?.relation==='behind'&&result.value.distanceMinKm<=radius)boundaryUncertain++;rejected++;}}
+ if(rateLimited)break;
  }
  for(const item of items)if(!item.trainType)item.trainType=map.data.find(r=>String(r.train_number)===item.number)?.type||null;
  items.sort((a,b)=>a.distanceMinKm-b.distanceMinKm);
- return {items:items.slice(0,10),radiusKm:radius,boundaryUncertain,rateLimited,retryAfterSeconds:rateLimited?65:null,retryOffset:failed?offset:null,state:failed?'partial':'checked',checked:selected.length,failed,rejected,totalCandidates:all.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null,baseUpdatedAt:base.lastUpdatedAt,
+ return {items:items.slice(0,10),radiusKm:radius,boundaryUncertain,rateLimited,retryAfterSeconds,retryOffset:failed?offset:null,state:failed?'partial':'checked',checked,failed,rejected,totalCandidates:all.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null,baseUpdatedAt:base.lastUpdatedAt,
  message:'Authorized feed candidates, verified in pages. Coverage depends on provider; empty results do not mean a clear track.'};
 }
 

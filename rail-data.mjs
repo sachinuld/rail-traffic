@@ -4,7 +4,7 @@ import {request} from './provider.mjs';
 import {normalize,normalizeCoaches} from './railradar.mjs';
 import {discover} from './nearby.mjs';
 import {train,station,envelope,boardRow,locationOf,num} from './normalize.mjs';
-const behindCache=new Map();
+const behindCache=new Map(),stationCache=new Map(),stationPending=new Map();
 const fail=message=>{const e=Error(message);e.status=502;throw e;};
 export const railData={
  async stationSearch(q){const p=await request('/lookup/search/stations?q='+encodeURIComponent(q)+'&limit=10');if(!Array.isArray(p.data))fail('Station search response unavailable');return envelope(p,p.data.map(station),'schedule');},
@@ -17,11 +17,16 @@ export const railData={
  n.coaches=n.coaches.map(c=>{const detail=details.find(r=>r.position===c.position&&r.code===c.code)||{};return {...c,classType:detail.classType||null,blueprint:normalizeBlueprint(blueprints?.[detail.classType]),hasSeats:detail.hasSeats??null};});return envelope(p,n,'schedule');},
  async behind(number,date,offset=0,radius=100){const p=await request('/trains/'+number+'/live?date='+date+'&haltsOnly=false&includeCoordinates=true');normalize(p,number,date);const id=number+date+p.data.lastUpdatedAt+':'+offset+':'+radius;const cached=behindCache.get(id);if(cached&&Date.now()-cached.time<60000)return cached.data;const data=envelope(p,await discover(p.data,request,Date.now(),offset,radius));if(behindCache.size>80)behindCache.clear();if(!data.data.failed)behindCache.set(id,{time:Date.now(),data});return data;},
  async stationLive(code,offset=0){
+  const key=code+':'+offset,c=stationCache.get(key);if(c&&Date.now()-c.time<45000)return c.data;
+  if(stationPending.has(key))return stationPending.get(key);
+  const job=this.stationPage(code,offset).then(data=>{if(!data.data.failed){if(stationCache.size>80)stationCache.clear();stationCache.set(key,{time:Date.now(),data});}return data;}).finally(()=>stationPending.delete(key));stationPending.set(key,job);return job;
+ },
+ async stationPage(code,offset=0){
   const p=await request('/stations/'+code+'/live?hours=4&includeIntermediate=true');
   if(p.data?.station?.code!==code||!Array.isArray(p.data.trains))fail('Live station response unavailable');
   const seen=new Set(),all=p.data.trains.filter(r=>{const n=String(r.train?.number||'');if(!/^\d{5}$/.test(n)||seen.has(n))return false;seen.add(n);return true;});
-  const selected=all.slice(offset,offset+8),rows=[];let failed=0;
-  for(const row of selected){try{
+  const selected=all.slice(offset,offset+8),rows=[];let failed=0,checked=0,rateLimited=false,retryAfterSeconds=null;
+  for(const row of selected){checked++;try{
    const number=String(row.train.number),date=row.live?.startDate;
    const live=await request('/trains/'+number+'/live?haltsOnly=false&includeCoordinates=true'+(/^\d{4}-\d{2}-\d{2}$/.test(date||'')?'&date='+date:''));
    const d=live.data;if(d?.trainNumber!==number)continue;
@@ -31,8 +36,8 @@ export const railData={
    rows.push({...boardRow(row,code,stop.isHalt),...locationFacts(d),...visit,journeyDate:d.startDate,currentLocation:locationFacts(d).lastReportedStation,status:visit.proximity||'upcoming',
     scheduledArrival:detail.arrival.scheduled,scheduledDeparture:detail.departure.scheduled,actualArrival:detail.arrival.actual,actualDeparture:detail.departure.actual,
     expectedArrival:detail.arrival.expected,expectedDeparture:detail.departure.expected,platform:detail.platform});
-  }catch{failed++;}}
-  return envelope(p,{station:station(p.data.station),rows:rows.sort((a,b)=>(a.visitKind==='near'?0:Date.parse(a.visitTime))-(b.visitKind==='near'?0:Date.parse(b.visitTime))),radiusKm,windowHours:4,windowEnd:new Date(Date.now()+14400000).toISOString(),failed,partial:failed>0,totalCandidates:all.length,checked:selected.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null});
+  }catch(e){failed++;if(e.status===429){rateLimited=true;retryAfterSeconds=e.retryAfterSeconds||120;break;}}}
+  return envelope(p,{station:station(p.data.station),rows:rows.sort((a,b)=>(a.visitKind==='near'?0:Date.parse(a.visitTime))-(b.visitKind==='near'?0:Date.parse(b.visitTime))),radiusKm,rateLimited,retryAfterSeconds,windowHours:4,windowEnd:new Date(Date.now()+14400000).toISOString(),failed,partial:failed>0,totalCandidates:all.length,checked,nextOffset:rateLimited?offset+checked-1:offset+checked<all.length?offset+checked:null});
  },
  async location(number,date){const live=await this.live(number,date);return {...live,data:live.data.location};},
  async geometry(number){const p=await request('/trains/'+number+'/route?format=geojson&stops=true');if(String(p.data?.trainNumber)!==number)fail('Route geometry unavailable');const g=p.data.geojson?.geometry;return envelope(p,{coordinates:g?.type==='LineString'&&Array.isArray(g.coordinates)?g.coordinates.filter(c=>Array.isArray(c)&&c.length>=2&&Number.isFinite(c[0])&&Number.isFinite(c[1])&&Math.abs(c[0])<=180&&Math.abs(c[1])<=90):[],stations:(p.data.stops||[]).map(station)},'schedule');}
