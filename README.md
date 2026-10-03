@@ -1,4 +1,4 @@
-# Indian Rail Live — Version 9
+# Indian Rail Live — Version 9.1
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.
 
@@ -11,8 +11,8 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
 5. `/health` must show `rail-live-9`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.
-7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9 never imports or serves them. Old subdirectories are unused by the flat package.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.1.
+7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.1 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
 Render: build command `npm install` (or leave empty if supported), start command `npm start`.
@@ -58,7 +58,7 @@ Backend enforces a static file allowlist; source, environment and API keys are n
 
 ## UI refinements
 
-Train search and station search each have one dedicated screen, accessed from bottom navigation. Home retains the route search and official PNR link. No secondary copies of the forms. A single contextual Search a train first link appears only before selecting a train.
+Home contains From/To, Train No/Name and Live Station search forms, plus PNR. Interior result screens do not repeat the search forms. Bottom navigation shortcuts focus the matching Home form. A single contextual Search a train first link appears only before selecting a train.
 
 
 Compact side-by-side From/To search, consistent Noto Sans Devanagari/system typography, four equal parallel tabs at mobile widths, compact 13px seat numbers and 10px type codes. Sleeping bays place the supplied main-berth groups opposite side berths with an aisle; chair-car groups preserve the supplied arrangement. This is a labelled schematic based on provider blueprints, not a certified engineering drawing.
