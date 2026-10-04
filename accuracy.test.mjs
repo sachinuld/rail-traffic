@@ -52,6 +52,15 @@ test('reportedPoint interpolates live segmentProgress when provider omits coordi
  assert.deepEqual(reportedPoint(d),{lat:26.5,lng:80});
 });
 
+test('reportedPoint rejects invalid interpolation output and handles equal latitude',()=>{
+ const d={isLive:true,status:'running',lastUpdatedAt:new Date(now).toISOString(),currentLocation:{stationCode:'S1',status:'departed',segmentProgress:.5,isActualPosition:true},route:[{stationCode:'S1',lat:26,lng:79},{stationCode:'S2',lat:26,lng:81}]};
+ assert.deepEqual(reportedPoint(d),{lat:26,lng:80});
+ d.currentLocation.segmentProgress=NaN;
+ assert.equal(reportedPoint(d),null);
+ d.currentLocation.segmentProgress=2;
+ assert.equal(reportedPoint(d),null);
+});
+
 test('nearStation detects a non-stop train from interpolated live position',()=>{
  const d={isLive:true,status:'running',lastUpdatedAt:new Date(now).toISOString(),currentLocation:{stationCode:'S1',status:'departed',segmentProgress:1,isActualPosition:true},route:[{stationCode:'S1',lat:26,lng:79,isHalt:true},{stationCode:'TARGET',stationName:'Target',lat:26.5,lng:80,isHalt:false},{stationCode:'S3',lat:27,lng:81,isHalt:true}]};
  const n=nearStation(d,'TARGET',5,now);
