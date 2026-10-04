@@ -1,3 +1,4 @@
-Version 9.3.1
-ZIP निकालकर अंदर की सभी 34 files GitHub root में replace करें। फिर Render: Deploy latest commit करें। ऐप दोबारा खोलें। Settings में 9.3.1 दिखेगा। Server health rail-live-9.3 ही रहेगा।
-सुधार: Error आने पर Loading हटेगा; डेटा न हो तो Check more trains छिपेगा; Retry countdown फिर शुरू नहीं होगा। यह API quota नहीं बढ़ाता।
+Version 9.3.2
+ZIP निकालकर अंदर की सभी 34 files GitHub root में replace करें। ऐप फिर खोलें; Settings में 9.3.2 दिखेगा। Server health rail-live-9.3 रहेगा।
+Behind Train: बार-बार क्लिक करने से error इकट्ठे नहीं होंगे; failed request पर Loading हटेगा। API quota नहीं बदला गया है।
+RailRadar का अधिकृत embed URL नहीं मिला, इसलिए इस संस्करण में मौजूदा map link ही है।
