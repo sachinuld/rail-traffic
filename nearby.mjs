@@ -70,7 +70,7 @@ export async function discover(base,request,now=Date.now(),offset=0,radius=BEHIN
  if(!context(base,now))return {items:[],checked:0,failed:0,totalCandidates:0,nextOffset:null,state:'unavailable',message:'आपकी ट्रेन का ताज़ा, तुलनीय रूट डेटा नहीं मिला। पहले लाइव स्थिति फिर देखें।'};
  const map=await request('/legacy/trains/live-map');
  if(map?.success!==true||!Array.isArray(map.data))throw Error('Invalid map response');
- const all=candidates(base,map.data,Infinity,now,radius),selected=all.slice(offset,offset+8),items=[];let failed=0,rejected=0,rateLimited=false,boundaryUncertain=0,retryAfterSeconds=null,checked=0;
+ const all=candidates(base,map.data,Infinity,now,radius),selected=all.slice(offset,offset+6),items=[];let failed=0,rejected=0,rateLimited=false,boundaryUncertain=0,retryAfterSeconds=null,checked=0;
  // Bounded parallelism; provider quota and shared caching are enforced by request().
  for(let i=0;i<selected.length;i+=3){
  const results=await Promise.allSettled(selected.slice(i,i+3).map(async n=>{

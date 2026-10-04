@@ -20,9 +20,9 @@ test('candidate verification uses bounded pages (the UI caps combined results at
  const base=run();base.route.forEach((s,i)=>s.distance=i*2);const feed=Array.from({length:15},(_,i)=>({train_number:String(11000+i),current_station:'S'+i,next_station:'S'+(i+1)}));
  assert.equal(candidates(base,feed,undefined,now).length,15);
  const request=async path=>path.includes('live-map')?{success:true,data:feed}:{success:true,data:(()=>{const d=run(path.match(/trains\/(\d+)/)[1],Number(path.match(/trains\/(\d+)/)[1])-11000);d.route.forEach((s,i)=>s.distance=i*2);return d;})()};
- const first=await discover(base,request,now,0),second=await discover(base,request,now,first.nextOffset);
- assert.equal(first.items.length,8);assert.equal(second.items.length,7);assert.equal(second.nextOffset,null);assert.ok([...first.items,...second.items].every(i=>i.distanceMaxKm<=50));
- assert.equal(new Set([...first.items,...second.items].map(i=>i.number)).size,15);
+ const first=await discover(base,request,now,0),second=await discover(base,request,now,first.nextOffset),third=await discover(base,request,now,second.nextOffset);
+ assert.equal(first.items.length,6);assert.equal(second.items.length,6);assert.equal(third.items.length,3);assert.equal(third.nextOffset,null);assert.ok([...first.items,...second.items,...third.items].every(i=>i.distanceMaxKm<=50));
+ assert.equal(new Set([...first.items,...second.items,...third.items].map(i=>i.number)).size,15);
 });
 test('blueprints use only supplied seats, flag incomplete data, reject duplicates',()=>{
  const raw={classCode:'3A',totalBerths:72,cabins:[{cabinNumber:1,main:[{number:21,type:'LB'},{number:22,type:'MB'}],side:[{number:27,type:'SL'}]}]};

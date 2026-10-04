@@ -80,5 +80,8 @@ https://railradar.in/docs/station-coach-position
 
 Provider cache keys canonicalize query ordering. Concurrent station-page requests share work and successful pages are reused for 45 seconds. HTTP 429 stops further candidate verification and propagates Retry-After; the upstream cooldown prevents repeat requests. Cached fresh responses remain usable. Behind checks one bounded page per action; use Resume remaining checks to extend the list up to ten. Existing rows survive refresh errors. Retry buttons show a countdown. This reduces avoidable calls; it cannot override provider account quotas.
 
-## v9.3.2 station error display
+## v9.3.3 station error display
 Failed initial station requests clear Loading and hide pagination. Cooldown uses an absolute deadline, survives redraws, and does not restart on each age update. Exhausted requests pause automatic station retries until a manual retry. Server remains API version 9.3.
+
+## v9.3.3 — v3 request behaviour restored
+Behind search is manual: no request on opening the tab, changing radius, or the 60-second refresh timer. Each click verifies six candidates; More continues within the chosen radius and the UI retains the ten-result cap. Concurrent identical behind requests share one discovery operation. Other current features and accuracy filters remain. This reduces load; provider quotas may still apply.
