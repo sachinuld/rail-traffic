@@ -1,7 +1,10 @@
 {
   "name": "indian-rail-live",
-  "version": "9.5.1",
+  "version": "9.6.0",
   "private": true,
+  "dependencies": {
+    "railkit": "^4.1.0"
+  },
   "type": "module",
   "scripts": {
     "start": "node server.mjs",

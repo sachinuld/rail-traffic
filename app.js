@@ -13,7 +13,7 @@ theme(storage.get('rail-theme','light')==='dark');$('theme-toggle').onclick=()=>
 $('language').value=language;setLanguage(language);
 $('boarding-date').value=today();$('journey-date').value=today();$('endpoint').value=service.base;
 let connected=false;
-function connection(){ $('connection').textContent=connected?t('RailRadar • अपडेट का समय देखें','RailRadar • Check update times'):liveUnavailable(); }
+function connection(){ $('connection').textContent=connected?t('RailKit • NTES + WIMT • अपडेट का समय देखें','RailKit • NTES + WIMT • Check update times'):liveUnavailable(); }
 async function connect(){const token=begin('config');try{const c=await service.config();if(valid('config',token)){connected=c.liveConnected===true&&c.version>=9.2;}}catch{if(valid('config',token))connected=false;}connection();}
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{service.configure($('endpoint').value.trim());reset();await connect();$('settings-message').textContent=connected?t('कनेक्ट हो गया।','Connected.'):liveUnavailable();}catch{$('settings-message').textContent=t('सही HTTPS सर्वर पता भरें।','Enter a valid HTTPS server address.');}};
 function reset(){for(const k of Object.keys(state.seq))begin(k);state.busy.clear();state.train=null;state.live=null;state.coaches=null;state.schedule=null;state.station=null;state.stationData=null;state.results=null;state.routeResults=null;for(const id of ['route-results','train-results','coach-results'])$(id).replaceChildren();$('train-content').hidden=true;$('train-empty').hidden=false;}
