@@ -1,3 +1,7 @@
+# Version 9.4 — Current UI
+
+Live Station and Behind Train have been removed from Home, navigation and train tabs. Their frontend handlers and refresh calls are removed. Existing backend endpoints are retained for compatibility but are not called by this UI. Remaining features: From/To search, train search, live route/status, RailRadar link, coach/berth view, PNR, language and theme.
+
 # Indian Rail Live — Version 9.3
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.

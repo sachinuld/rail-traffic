@@ -1,4 +1,3 @@
-Version 9.3.3
-ZIP निकालकर अंदर की सभी 34 files GitHub root में replace करें। Render → Manual Deploy → Deploy latest commit करें। /health पर rail-live-9.3.3 होना चाहिए।
-Behind Train अब v3 की तरह बटन से चलता है। टैब खोलने/दायरा बदलने/हर मिनट पर उसकी खोज नहीं होगी। एक बार में 6 उम्मीदवार जाँचे जाते हैं; और ट्रेनें दबाने पर आगे जाँच; कुल अधिकतम 10 परिणाम और 50/100 KM विकल्प सुरक्षित हैं। API quota फिर भी लागू है।
-पुराना v3 server अकेले upload न करें: नए frontend का API format अलग है।
+Version 9.4
+ZIP निकालकर अंदर की 34 files GitHub root में replace करें। GitHub Pages deployment पूरा होने के बाद ऐप बंद करके खोलें; जरूरत हो तो Ctrl+Shift+R करें। Settings में Version 9.4 दिखेगा।
+Live Station और Behind Train के विकल्प, पेज और frontend requests हटे हैं। बाकी सुविधाएँ बरकरार हैं। इस UI बदलाव के लिए server में बदलाव आवश्यक नहीं है।

@@ -10,22 +10,11 @@
 </form></section><section class="card" id="home-train-section"><h2 data-hi="ट्रेन नंबर / नाम" data-en="Train No / Train Name">ट्रेन नंबर / नाम</h2><form id="train-search-form" class="inline-form">
 <input id="train-query" data-hi="ट्रेन नंबर या नाम" data-en="Train number or name" placeholder="ट्रेन नंबर या नाम" aria-label="Train number or name" autocomplete="off" required>
 <button data-hi="खोजें" data-en="Search" id="train-search" class="primary">खोजें</button>
-</form></section><section class="card" id="home-station-section"><h2 data-hi="लाइव स्टेशन" data-en="Live Station">लाइव स्टेशन</h2><p class="micro" data-hi="अगले 4 घंटे की आने वाली और Non-Stop ट्रेनें" data-en="Arrivals and non-stop trains in the next 4 hours">अगले 4 घंटे की आने वाली और Non-Stop ट्रेनें</p><form id="station-form" class="inline-form">
-<div class="station-picker"><input id="station-query" data-hi="स्टेशन / कोड / शहर" data-en="Station / code / city" placeholder="स्टेशन / कोड / शहर" aria-label="Station / code / city" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="station-query-options" required><div id="station-query-options" class="options" role="listbox"></div></div>
-<button data-hi="खोजें" data-en="Search" id="station-search" class="primary">खोजें</button>
 </form></section></div><a class="utility" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en">
 <b data-hi="PNR • आधिकारिक रेलवे वेबसाइट ↗" data-en="PNR • Official railway website ↗" >PNR • आधिकारिक रेलवे वेबसाइट ↗</b>
 </a><div id="route-results" aria-live="polite"></div></section><section data-page="search" hidden>
 <h1 data-hi="ट्रेन खोज के नतीजे" data-en="Train results">ट्रेन खोज के नतीजे</h1>
-<div id="train-results" aria-live="polite"></div></section><section data-page="station" hidden><div class="page-heading">
-<h1 data-hi="लाइव स्टेशन" data-en="Live Station" >लाइव स्टेशन</h1>
-<button data-hi="↻ अपडेट" data-en="↻ Refresh" id="station-refresh" class="secondary">↻ अपडेट</button>
-</div><h2 id="station-title"></h2><div class="segmented">
-<button data-hi="आगमन • अगले 4 घंटे" data-en="Arrivals • Next 4 hours" data-board="halt" aria-pressed="true">आगमन • अगले 4 घंटे</button>
-<button data-hi="बिना रुके गुजरने वाली" data-en="Non-Stop Trains" data-board="nonstop" aria-pressed="false">बिना रुके गुजरने वाली</button>
-</div><div id="station-notice" role="status"></div><div id="station-results"></div>
-<button data-hi="और ट्रेनें जाँचें" data-en="Check more trains" id="station-more" class="secondary wide">और ट्रेनें जाँचें</button>
-</section><section data-page="live" hidden><div id="train-empty" class="empty">
+<div id="train-results" aria-live="polite"></div></section><section data-page="live" hidden><div id="train-empty" class="empty">
 <a data-hi="पहले ट्रेन खोजें →" data-en="Search a train first →" href="#search">पहले ट्रेन खोजें →</a>
 </div><div id="train-content" hidden><div class="train-header"><div><small>RAILRADAR • LIVE</small><h1 id="train-title"></h1><p id="train-route"></p></div></div><div class="train-controls">
 <label data-hi="यात्रा शुरू होने की तारीख" data-en="Journey start date" for="journey-date">यात्रा शुरू होने की तारीख</label>
@@ -36,7 +25,6 @@
 <p data-hi="ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।" data-en="Choose the date the train left its origin." class="micro">ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।</p>
 <div id="train-error"></div><p id="train-meta" class="micro"></p><div id="current-location"></div><div id="train-stats" class="stats"></div><div class="segmented train-tabs">
 <button data-hi="लाइव / रूट" data-en="Live Route" data-train-tab="timeline" aria-pressed="true">लाइव / रूट</button>
-<button data-hi="पीछे की ट्रेनें" data-en="Behind Train" data-train-tab="behind" aria-pressed="false">पीछे की ट्रेनें</button>
 <button data-hi="लाइव ट्रेन मैप" data-en="Live Train Map" data-train-tab="map" aria-pressed="false">लाइव ट्रेन मैप</button>
 <button data-hi="कोच / बर्थ" data-en="Coach / Berth" data-train-tab="coaches" aria-pressed="false">कोच / बर्थ</button>
 </div><div data-train-panel="timeline">
@@ -45,14 +33,7 @@
 <span data-hi="आगमन" data-en="Arrival" >आगमन</span>
 <span data-hi="स्टेशन / प्लेटफॉर्म" data-en="Station / Platform" >स्टेशन / प्लेटफॉर्म</span>
 <span data-hi="प्रस्थान" data-en="Departure" >प्रस्थान</span>
-</div><div id="timeline"></div></div><div data-train-panel="behind" hidden><div class="card">
-<h2 data-hi="आपकी ट्रेन के पीछे" data-en="Behind your train" >आपकी ट्रेन के पीछे</h2>
-<p data-hi="समान दिशा • एक बार में 6 की जाँच • अधिकतम 10 परिणाम। नंबर दबाकर विवरण खोलें।" data-en="Same direction • Checks 6 per request • Up to 10 results. Tap a number for details." class="micro">समान दिशा • एक बार में 6 की जाँच • अधिकतम 10 परिणाम। नंबर दबाकर विवरण खोलें।</p>
-<label for="behind-radius" data-hi="पीछे का दायरा" data-en="Distance behind">पीछे का दायरा</label><select id="behind-radius"><option value="50">50 KM</option><option value="100" selected>100 KM</option></select>
-<button data-hi="↻ पीछे की ट्रेनें खोजें" data-en="↻ Find behind trains" id="behind-load" class="primary">↻ पीछे की ट्रेनें खोजें</button>
-</div><div id="behind-results"></div>
-<button data-hi="और ट्रेनें जाँचें" data-en="Check more trains" id="behind-more" class="secondary wide">और ट्रेनें जाँचें</button>
-</div><div data-train-panel="map" hidden><section class="card radar-link-card"><span class="radar-icon" aria-hidden="true">↗</span><p data-hi="RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।" data-en="View the live train map on RailRadar. The button opens its website in a new tab.">RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।</p><a class="primary radar-link" href="https://railradar.in/railradar" target="_blank" rel="noopener noreferrer" data-hi="RailRadar मैप खोलें ↗" data-en="Open RailRadar Map ↗">RailRadar मैप खोलें ↗</a></section></div><div data-train-panel="coaches" hidden><div class="card">
+</div><div id="timeline"></div></div><div data-train-panel="map" hidden><section class="card radar-link-card"><span class="radar-icon" aria-hidden="true">↗</span><p data-hi="RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।" data-en="View the live train map on RailRadar. The button opens its website in a new tab.">RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।</p><a class="primary radar-link" href="https://railradar.in/railradar" target="_blank" rel="noopener noreferrer" data-hi="RailRadar मैप खोलें ↗" data-en="Open RailRadar Map ↗">RailRadar मैप खोलें ↗</a></section></div><div data-train-panel="coaches" hidden><div class="card">
 <h2 data-hi="कोच और सीटों की बनावट" data-en="Coach and berth layout" >कोच और सीटों की बनावट</h2>
 <p data-hi="सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।" data-en="Provider blueprint, not seat availability. Actual rake may differ." class="micro">सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।</p>
 <form id="coach-form" class="inline-form"><select id="coach-station" aria-label="Coach station / स्टेशन" required></select>
@@ -64,7 +45,7 @@
 <input id="dark-switch" type="checkbox"></label><label class="switch-row">
 <span data-hi="हर 60 सेकंड में अपडेट" data-en="Refresh every 60 seconds" >हर 60 सेकंड में अपडेट</span>
 <input id="auto-switch" type="checkbox" checked></label>
-<p data-hi="ट्रेन/स्टेशन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।" data-en="Updates while the train/station page is visible. Pauses at API rate limits." class="micro">ट्रेन/स्टेशन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।</p>
+<p data-hi="ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।" data-en="Updates while the train page is visible. Pauses at API rate limits." class="micro">ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।</p>
 </section><section class="card">
 <h2 data-hi="सर्वर कनेक्शन" data-en="Server connection" >सर्वर कनेक्शन</h2>
 <form id="settings-form">
@@ -72,10 +53,9 @@
 <input id="endpoint" type="url" required>
 <button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
 </form><p id="settings-message" role="status"></p></section>
-<p data-hi="Indian Rail Live • संस्करण 9.3.3 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.3.3 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.3.3 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
+<p data-hi="Indian Rail Live • संस्करण 9.4 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.4 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.4 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
 </section></main><nav class="bottom-nav" aria-label="Navigation">
 <a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
-<a data-hi="◎ स्टेशन" data-en="◎ Station" href="#station" data-nav="station">◎ स्टेशन</a>
 <a data-hi="⌕ खोज" data-en="⌕ Search" href="#search" data-nav="search">⌕ खोज</a>
 <a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a>
 <a data-hi="☰ अधिक" data-en="☰ More" href="#more" data-nav="more">☰ अधिक</a>
