@@ -13,3 +13,17 @@
 /* Home: route and train search side by side; station search below on the right. */
 .home-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;max-width:none;align-items:start}.home-grid>.card{margin:0;min-width:0}#home-route-section{grid-column:1;grid-row:1}#home-train-section{grid-column:2;grid-row:1}#home-station-section{grid-column:2;grid-row:2}.upcoming-label{color:var(--blue);background:var(--soft);padding:12px;border-radius:10px;font-weight:700}
 @media(max-width:600px){.home-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.home-grid>.card{padding:10px;border-radius:12px}.home-grid h2{font-size:14px;line-height:1.5}.home-grid .inline-form{flex-direction:column;align-items:stretch}.home-grid .inline-form>*{width:100%;flex:auto}.home-grid .compact-route{grid-template-columns:minmax(0,1fr);gap:5px}.home-grid .compact-route .swap{min-height:44px;width:44px;justify-self:end}.home-grid .compact-date{grid-template-columns:minmax(0,1fr)}.home-grid input{font-size:13px;padding:8px 5px}.home-grid .primary{font-size:13px;padding:8px}.home-grid .micro{font-size:12px}.home-grid .options{width:240px;max-width:calc(100vw - 40px)}#home-station-section .options{left:auto;right:0}}
+
+.station-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+.station-header h2{margin:4px 0}
+.station-train-card{padding:14px;margin:10px 0;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.station-train-card.nonstop-card{box-shadow:inset 4px 0 var(--blue)}
+.station-train-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.station-train-name{display:block;font-size:16px;color:var(--blue)}
+.station-train-top small{display:block;color:var(--muted);margin-top:4px}
+.station-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.station-location{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.station-location small{color:var(--muted);font-size:11px}
+.map-link{font-size:12px;font-weight:700;color:var(--blue);text-decoration:none}
+.station-picker-card{max-width:700px}
+@media(max-width:600px){.station-header{align-items:flex-start}.station-header .secondary{padding:8px}.station-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.station-train-top{gap:8px}.station-train-name{font-size:14px}}
