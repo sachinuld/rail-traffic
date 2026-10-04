@@ -27,3 +27,5 @@
 .map-link{font-size:12px;font-weight:700;color:var(--blue);text-decoration:none}
 .station-picker-card{max-width:700px}
 @media(max-width:600px){.station-header{align-items:flex-start}.station-header .secondary{padding:8px}.station-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.station-train-top{gap:8px}.station-train-name{font-size:14px}}
+
+.station-train-card[role=button]{cursor:pointer}.station-train-card[role=button]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}

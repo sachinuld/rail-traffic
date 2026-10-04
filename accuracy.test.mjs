@@ -46,3 +46,15 @@ test('100 KM includes verified trains outside 50 KM, excludes farther trains and
  assert.deepEqual(wide.items.map(r=>r.number),['11014','11012','11011']);assert.deepEqual(narrow.items.map(r=>r.number),['11014']);assert.ok(wide.items.length<=10);assert.equal(wide.radiusKm,100);
  await assert.rejects(()=>discover(base,request,now,0,101),{status:400});
 });
+
+test('reportedPoint interpolates live segmentProgress when provider omits coordinates',()=>{
+ const d={isLive:true,status:'running',lastUpdatedAt:new Date(now).toISOString(),currentLocation:{stationCode:'S1',status:'departed',segmentProgress:.5,isActualPosition:true},route:[{stationCode:'S1',lat:26,lng:79},{stationCode:'S2',lat:27,lng:81}]};
+ assert.deepEqual(reportedPoint(d),{lat:26.5,lng:80});
+});
+
+test('nearStation detects a non-stop train from interpolated live position',()=>{
+ const d={isLive:true,status:'running',lastUpdatedAt:new Date(now).toISOString(),currentLocation:{stationCode:'S1',status:'departed',segmentProgress:1,isActualPosition:true},route:[{stationCode:'S1',lat:26,lng:79,isHalt:true},{stationCode:'TARGET',stationName:'Target',lat:26.5,lng:80,isHalt:false},{stationCode:'S3',lat:27,lng:81,isHalt:true}]};
+ const n=nearStation(d,'TARGET',5,now);
+ assert.equal(n.proximity,'passing');
+ assert.ok(n.distanceKm < 0.2);
+});
