@@ -12,7 +12,10 @@ export async function googleMap(number,date,zoom){
  const u=new URL('https://maps.googleapis.com/maps/api/staticmap');
  u.searchParams.set('size','640x400');u.searchParams.set('scale','2');
  u.searchParams.set('center',pos.lat+','+pos.lng);u.searchParams.set('zoom',String(zoom));
- u.searchParams.set('markers','color:blue|label:T|'+pos.lat+','+pos.lng);
+ const iconBase=process.env.PUBLIC_BASE_URL||'https://rail-traffic.onrender.com';
+ const trainIcon=new URL('/icon-192.png',iconBase).toString();
+ // Use the app's own train icon for the live position marker.
+ u.searchParams.set('markers','icon:'+trainIcon+'|'+pos.lat+','+pos.lng);
  for(const s of l.nearbyStations||[])if(Number.isFinite(s.lat)&&Number.isFinite(s.lng))u.searchParams.append('markers','color:gray|size:tiny|'+s.lat+','+s.lng);
  try{
  const route=(await railData.geometry(number)).data.coordinates;

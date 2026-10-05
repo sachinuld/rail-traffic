@@ -20,5 +20,7 @@ export class TrainDataService{
  schedule(train){return this.get('/api/schedule',{train});}
  coachPosition(train,station){return this.get('/api/coaches',{train,station});}
  trainLocation(train,date){return this.get('/api/location',{train,date});}
+ mapUrl(train,date,zoom=10){const u=new URL('/api/map',this.base);u.searchParams.set('train',train);u.searchParams.set('date',date);u.searchParams.set('zoom',String(zoom));return u.toString();}
 }
+
 export const service=new TrainDataService();

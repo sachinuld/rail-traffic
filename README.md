@@ -93,4 +93,4 @@ Failed initial station requests clear Loading and hide pagination. Cooldown uses
 Behind search is manual: no request on opening the tab, changing radius, or the 60-second refresh timer. Each click verifies six candidates; More continues within the chosen radius and the UI retains the ten-result cap. Concurrent identical behind requests share one discovery operation. Other current features and accuracy filters remain. This reduces load; provider quotas may still apply.
 
 
-Live Station v9.6: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
+Live Station v9.7: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
