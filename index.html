@@ -38,7 +38,17 @@
 <p data-hi="सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।" data-en="Provider blueprint, not seat availability. Actual rake may differ." class="micro">सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।</p>
 <form id="coach-form" class="inline-form"><select id="coach-station" aria-label="Coach station / स्टेशन" required></select>
 <button data-hi="कोच देखें" data-en="View coaches" id="coach-load" class="primary">कोच देखें</button>
-</form><div id="coach-results"></div></div></div></div></section><section data-page="more" hidden>
+</form><div id="coach-results"></div></div></div></div></section><section data-page="station-live" hidden>
+<div class="page-heading"><h1 data-hi="Live Station" data-en="Live Station">Live Station</h1></div>
+<section class="card station-live-search">
+<label for="live-station" data-hi="स्टेशन चुनें" data-en="Select station">स्टेशन चुनें</label>
+<div class="station-picker"><input id="live-station" data-hi="स्टेशन का नाम या कोड" data-en="Station name or code" placeholder="स्टेशन का नाम या कोड" aria-label="Live Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="live-station-options">
+<div id="live-station-options" class="options" role="listbox"></div></div>
+<div id="selected-live-station" class="selected-station" hidden></div>
+</section>
+<div class="station-window-heading"><h2 data-hi="अगले 4 घंटे" data-en="Upcoming 4 Hours">अगले 4 घंटे</h2><button id="station-refresh" class="secondary" type="button" data-hi="↻ अपडेट" data-en="↻ Refresh">↻ अपडेट</button></div>
+<div id="station-error"></div><div id="station-meta" class="micro"></div><div id="station-results" aria-live="polite"></div>
+</section><section data-page="more" hidden>
 <h1 data-hi="सेटिंग्स" data-en="Settings" >सेटिंग्स</h1>
 <section class="card"><label class="switch-row">
 <span data-hi="डार्क मोड" data-en="Dark Mode" >डार्क मोड</span>
@@ -57,6 +67,6 @@
 </section></main><nav class="bottom-nav" aria-label="Navigation">
 <a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
 <a data-hi="⌕ खोज" data-en="⌕ Search" href="#search" data-nav="search">⌕ खोज</a>
-<a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a>
+<a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a><a data-hi="🚆 स्टेशन" data-en="🚆 Station" href="#station-live" data-nav="station-live">🚆 स्टेशन</a>
 <a data-hi="☰ अधिक" data-en="☰ More" href="#more" data-nav="more">☰ अधिक</a>
 </nav><script type="module" src="app.js"></script></body></html>
