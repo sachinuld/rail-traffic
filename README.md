@@ -93,4 +93,14 @@ Failed initial station requests clear Loading and hide pagination. Cooldown uses
 Behind search is manual: no request on opening the tab, changing radius, or the 60-second refresh timer. Each click verifies six candidates; More continues within the chosen radius and the UI retains the ten-result cap. Concurrent identical behind requests share one discovery operation. Other current features and accuracy filters remain. This reduces load; provider quotas may still apply.
 
 
-Live Station v9.7: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
+Live Station v9.8: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
+
+
+## v9.8 Home redesign
+- Rail Traffic blue app bar
+- From Station → To Station stacked search
+- Boarding date removed from the Home UI; today is used internally for the route search request
+- Parrot-green Find Trains / Train Search / Live Station search controls
+- Local recent search history with Clear option
+- PNR card at the bottom of Home
+- App train icon shown at the verified current station/location on the live timeline and current-location card
