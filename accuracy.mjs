@@ -10,11 +10,7 @@ export function reportedPoint(d){
  if(l.status==='arrived')return point(here);
  const progress=Number(l.segmentProgress);
  const a=point(here),b=point(next);
- if(a&&b&&Number.isFinite(progress)&&progress>=0&&progress<=1){
-  const lat=a.lat+(b.lat-a.lat)*progress;
-  const lng=a.lng+(b.lng-a.lng)*progress;
-  if(Number.isFinite(lat)&&Number.isFinite(lng))return {lat,lng};
- }
+ if(a&&b&&Number.isFinite(progress)&&progress>=0&&progress<=1)return {lat:a.lat+(b.lat-a.lat)*progress,lng:a.lng+(b.lng-a.lng)*progress};
  return null;
 }
 export function nearStation(d,code,radius=radiusKm,now=Date.now()){

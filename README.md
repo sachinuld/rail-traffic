@@ -1,4 +1,4 @@
-# Indian Rail Live v9.6.0
+# Indian Rail Live v9.6.1
 
 Live Station and Live Train data now support **RailKit**, using its documented NTES-backed live endpoints and WIMT-backed V2 tracking where available. The API key remains server-side in Render.
 
