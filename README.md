@@ -1,6 +1,8 @@
-# Version 9.4 — Current UI
+# Version 9.5 — Live Station integrated
 
-Live Station and Behind Train have been removed from Home, navigation and train tabs. Their frontend handlers and refresh calls are removed. Existing backend endpoints are retained for compatibility but are not called by this UI. Remaining features: From/To search, train search, live route/status, RailRadar link, coach/berth view, PNR, language and theme.
+Live Station is now a first-class feature in Home and bottom navigation. It uses the existing station search and `/api/station` live backend, shows the next four hours, verified live status, ETA, arrival/departure, delay, platform and running days, and opens the existing live train details without replacing existing search/live features.
+
+Existing features remain: From/To search, train search, live route/status, RailRadar link, coach/berth view, PNR, language and theme.
 
 # Indian Rail Live — Version 9.3
 
@@ -15,7 +17,7 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
 5. `/health` must show `rail-live-9.3`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.3.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.5.
 7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.3 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
