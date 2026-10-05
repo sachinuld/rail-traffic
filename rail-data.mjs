@@ -3,7 +3,7 @@ import {nearStation,locationFacts,radiusKm,normalizeBlueprint} from './accuracy.
 import {request} from './provider.mjs';
 import {normalize,normalizeCoaches} from './railradar.mjs';
 import {discover} from './nearby.mjs';
-import {train,station,envelope,boardRow,locationOf,num} from './normalize.mjs';
+import {train,station,envelope,boardRow,locationOf,num,iso} from './normalize.mjs';
 const behindPending=new Map(),behindCache=new Map(),stationCache=new Map(),stationPending=new Map();
 const fail=message=>{const e=Error(message);e.status=502;throw e;};
 export const railData={
@@ -17,7 +17,7 @@ export const railData={
  n.coaches=n.coaches.map(c=>{const detail=details.find(r=>r.position===c.position&&r.code===c.code)||{};return {...c,classType:detail.classType||null,blueprint:normalizeBlueprint(blueprints?.[detail.classType]),hasSeats:detail.hasSeats??null};});return envelope(p,n,'schedule');},
  async behind(number,date,offset=0,radius=100){const p=await request('/trains/'+number+'/live?date='+date+'&haltsOnly=false&includeCoordinates=true');normalize(p,number,date);const id=number+date+p.data.lastUpdatedAt+':'+offset+':'+radius;const cached=behindCache.get(id);if(cached&&Date.now()-cached.time<60000)return cached.data;if(behindPending.has(id))return behindPending.get(id);const job=discover(p.data,request,Date.now(),offset,radius).then(result=>{const data=envelope(p,result);if(behindCache.size>80)behindCache.clear();if(!data.data.failed)behindCache.set(id,{time:Date.now(),data});return data;}).finally(()=>behindPending.delete(id));behindPending.set(id,job);return job;},
  async stationLive(code,offset=0){
-  const key=code+':'+offset,c=stationCache.get(key);if(c&&Date.now()-c.time<45000)return c.data;
+  const key=code+':'+offset,c=stationCache.get(key);if(c&&Date.now()-c.time<30000)return c.data;
   if(stationPending.has(key))return stationPending.get(key);
   const job=this.stationPage(code,offset).then(data=>{if(!data.data.failed){if(stationCache.size>80)stationCache.clear();stationCache.set(key,{time:Date.now(),data});}return data;}).finally(()=>stationPending.delete(key));stationPending.set(key,job);return job;
  },
@@ -25,19 +25,38 @@ export const railData={
   const p=await request('/stations/'+code+'/live?hours=4&includeIntermediate=true');
   if(p.data?.station?.code!==code||!Array.isArray(p.data.trains))fail('Live station response unavailable');
   const seen=new Set(),all=p.data.trains.filter(r=>{const n=String(r.train?.number||'');if(!/^\d{5}$/.test(n)||seen.has(n))return false;seen.add(n);return true;});
-  const selected=all.slice(offset,offset+8),rows=[];let failed=0,checked=0,rateLimited=false,retryAfterSeconds=null;
-  for(const row of selected){checked++;try{
-   const number=String(row.train.number),date=row.live?.startDate;
-   const live=await request('/trains/'+number+'/live?haltsOnly=false&includeCoordinates=true'+(/^\d{4}-\d{2}-\d{2}$/.test(date||'')?'&date='+date:''));
-   const d=live.data;if(d?.trainNumber!==number)continue;
-   const stop=d.route?.find(s=>s.stationCode===code);if(typeof stop?.isHalt!=='boolean')continue;
-   const detail=normalize(live,number,d.startDate).stations.find(s=>s.code===code);
-   const visit=stationVisit(d,code,detail);if(!visit)continue;
-   rows.push({...boardRow(row,code,stop.isHalt),...locationFacts(d),...visit,journeyDate:d.startDate,currentLocation:locationFacts(d).lastReportedStation,status:visit.proximity||'upcoming',
-    scheduledArrival:detail.arrival.scheduled,scheduledDeparture:detail.departure.scheduled,actualArrival:detail.arrival.actual,actualDeparture:detail.departure.actual,
-    expectedArrival:detail.arrival.expected,expectedDeparture:detail.departure.expected,platform:detail.platform});
-  }catch(e){failed++;if(e.status===429){rateLimited=true;retryAfterSeconds=e.retryAfterSeconds||120;break;}}}
-  return envelope(p,{station:station(p.data.station),rows:rows.sort((a,b)=>(a.visitKind==='near'?0:Date.parse(a.visitTime))-(b.visitKind==='near'?0:Date.parse(b.visitTime))),radiusKm,rateLimited,retryAfterSeconds,windowHours:4,windowEnd:new Date(Date.now()+14400000).toISOString(),failed,partial:failed>0,totalCandidates:all.length,checked,nextOffset:rateLimited?offset+checked-1:offset+checked<all.length?offset+checked:null});
+  const now=Date.now(),end=now+4*60*60*1000,selected=all.slice(offset,offset+12),rows=[];
+  for(const row of selected){
+   const l=row.live||{},s=row.stop||{},number=String(row.train?.number||'');
+   if(!/^\d{5}$/.test(number))continue;
+   const isAt=['at-station','arrived'].includes(l.type),isDeparted=l.type==='departed';
+   if(isDeparted)continue;
+   const arrival=iso(l.expectedArrivalTime)||iso(l.arrivalTime)||iso(s.arrival);
+   const passing=iso(l.expectedPassingTime);
+   const departure=iso(l.expectedDepartureTime)||iso(l.departureTime)||iso(s.departure);
+   const visitTime=arrival||(!s.isHalt?passing:null)||departure;
+   const when=Date.parse(visitTime||'');
+   if(!isAt&&(!Number.isFinite(when)||when<now||when>end) && !(l.type==='upcoming' && !visitTime))continue;
+   const location=l.currentLocation||{};
+   const currentLocation=location.stationName||location.stationCode||l.lastReportedLocation||null;
+   const currentStation=location.stationName||location.stationCode||null;
+   const between=location.status&&location.status!=='arrived'&&location.status!=='at-station';
+   const statusText=isAt?null:(between&&currentStation?currentStation:null);
+   rows.push({...boardRow(row,code,s.isHalt),
+    visitKind:isAt?'near':'upcoming',visitTime:isAt?null:visitTime,timeBasis:arrival?'expected':(visitTime?'scheduled':null),
+    journeyDate:l.startDate||null,currentLocation,
+    currentStation,
+    statusText,
+    status:isAt?'at-station':(between?'between':'upcoming'),
+    scheduledArrival:s.arrival||null,scheduledDeparture:s.departure||null,
+    actualArrival:iso(l.actualArrivalTime),actualDeparture:iso(l.actualDepartureTime),
+    expectedArrival:arrival,expectedDeparture:departure,platform:l.platform??s.platform??null,
+    nextStation:l.nextStation?.name||l.nextStation?.stationName||l.nextStation?.stationCode||null,
+    previousStation:l.previousStation?.name||l.previousStation?.stationName||l.previousStation?.stationCode||null
+   });
+  }
+  rows.sort((a,b)=>(a.visitKind==='near'?0:Date.parse(a.visitTime||'9999'))-(b.visitKind==='near'?0:Date.parse(b.visitTime||'9999')));
+  return envelope(p,{station:station(p.data.station),rows,radiusKm:null,rateLimited:false,retryAfterSeconds:null,windowHours:4,windowEnd:new Date(end).toISOString(),failed:0,partial:false,totalCandidates:all.length,checked:selected.length,nextOffset:offset+selected.length<all.length?offset+selected.length:null});
  },
  async location(number,date){const live=await this.live(number,date);return {...live,data:live.data.location};},
  async geometry(number){const p=await request('/trains/'+number+'/route?format=geojson&stops=true');if(String(p.data?.trainNumber)!==number)fail('Route geometry unavailable');const g=p.data.geojson?.geometry;return envelope(p,{coordinates:g?.type==='LineString'&&Array.isArray(g.coordinates)?g.coordinates.filter(c=>Array.isArray(c)&&c.length>=2&&Number.isFinite(c[0])&&Number.isFinite(c[1])&&Math.abs(c[0])<=180&&Math.abs(c[1])<=90):[],stations:(p.data.stops||[]).map(station)},'schedule');}

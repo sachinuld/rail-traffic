@@ -15,8 +15,8 @@ export const server=http.createServer(async(req,res)=>{
  if(req.method==='OPTIONS')return send(204,{});
  const u=new URL(req.url,'http://localhost'),path=u.pathname,q=u.searchParams;
  if(req.method!=='GET')return send(405,{error:'Method not allowed'});
- if(path==='/health')return send(200,{ok:true,version:'rail-live-9.3.3'});
- if(path==='/api/config')return send(200,{liveConnected:!!process.env.RAILRADAR_API_KEY,mapConnected:!!process.env.GOOGLE_MAPS_API_KEY,refreshSeconds:60,version:9.3,satellite:imageryConfig()});
+ if(path==='/health')return send(200,{ok:true,version:'rail-live-9.6.0'});
+ if(path==='/api/config')return send(200,{liveConnected:!!process.env.RAILRADAR_API_KEY,mapConnected:!!process.env.GOOGLE_MAPS_API_KEY,refreshSeconds:30,version:9.6,satellite:imageryConfig()});
  try{
   if(path==='/'||staticFiles.has(path)){const file=staticFiles.get(path)||'index.html';const bytes=await readFile(new URL('./'+file,import.meta.url));res.setHeader('Content-Type',file.endsWith('.html')?'text/html; charset=utf-8':file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':file.endsWith('.woff2')?'font/woff2':file.endsWith('.png')?'image/png':'application/json');res.end(bytes);return;}
   const code=name=>{const v=q.get(name)||'';if(!/^[A-Z0-9]{1,10}$/.test(v))bad('सही स्टेशन चुनें।');return v;};
@@ -38,6 +38,6 @@ export const server=http.createServer(async(req,res)=>{
   else if(path==='/api/map'){const zoom=Number(q.get('zoom')||10);if(!Number.isInteger(zoom)||zoom<5||zoom>16)bad('Invalid map zoom');const bytes=await googleMap(number(),date(),zoom);res.setHeader('Content-Type','image/png');res.end(bytes);return;}
   else return send(404,{error:'Not found'});
   send(200,data);
- }catch(e){send(e.status||502,{error:e.status?e.message:'Live data temporarily unavailable — सेवा का जवाब नहीं मिला।',code:e.status===429?'RATE_LIMIT':'DATA_UNAVAILABLE',retryAfterSeconds:e.status===429?(e.retryAfterSeconds||120):60});}
+ }catch(e){send(e.status||502,{error:e.status?e.message:'Live data temporarily unavailable — सेवा का जवाब नहीं मिला।',code:e.status===429?'RATE_LIMIT':'DATA_UNAVAILABLE',retryAfterSeconds:e.status===429?30:60});}
 });
 if(process.env.NODE_ENV!=='test')server.listen(Number(process.env.PORT)||8080);

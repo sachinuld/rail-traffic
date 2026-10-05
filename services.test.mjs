@@ -20,7 +20,7 @@ test('new API endpoints normalize schedule/search and verify non-stop against ro
  const u=new URL(url);let data;
  if(u.pathname.endsWith('/search/stations'))data=[{code:'CNB',name:'Kanpur Central',city:'Kanpur'}];
  else if(u.pathname.endsWith('/search/trains'))data=[{number:'12345',name:'Test',source:'A',destination:'B'}];
- else if(u.pathname.endsWith('/stations/CNB/live'))data={station:{code:'CNB',name:'Kanpur'},trains:[{train:{number:'12345',name:'Test'},stop:{arrival:null},live:{type:'upcoming'}}]};
+ else if(u.pathname.endsWith('/stations/CNB/live'))data={station:{code:'CNB',name:'Kanpur'},trains:[{train:{number:'12345',name:'Test'},stop:{arrival:null,isHalt:false},live:{type:'upcoming'}}]};
  else if(u.pathname.endsWith('/trains/12345/live'))data={trainNumber:'12345',startDate:'2026-10-03',lastUpdatedAt:new Date().toISOString(),isLive:true,status:'running',currentLocation:{stationCode:'CNB',status:'arrived'},route:[{stationCode:'CNB',stationName:'Kanpur',isHalt:false}]};
  else if(u.pathname.endsWith('/trains/12345'))data={train:{number:'12345',name:'Test',runDays:['mon']},route:[{station:{code:'CNB',name:'Kanpur'},isHalt:false}]};
  else throw Error('Unexpected endpoint '+u.pathname);

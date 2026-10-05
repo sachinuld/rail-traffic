@@ -1,4 +1,4 @@
-# Version 9.5 — Live Station integrated
+# Version 9.6 — Live Station integrated
 
 Live Station is now a first-class feature in Home and bottom navigation. It uses the existing station search and `/api/station` live backend, shows the next four hours, verified live status, ETA, arrival/departure, delay, platform and running days, and opens the existing live train details without replacing existing search/live features.
 
@@ -17,7 +17,7 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
 5. `/health` must show `rail-live-9.3`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.5.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.6.
 7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.3 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
@@ -91,3 +91,6 @@ Failed initial station requests clear Loading and hide pagination. Cooldown uses
 
 ## v9.3.3 — v3 request behaviour restored
 Behind search is manual: no request on opening the tab, changing radius, or the 60-second refresh timer. Each click verifies six candidates; More continues within the chosen radius and the UI retains the ten-result cap. Concurrent identical behind requests share one discovery operation. Other current features and accuracy filters remain. This reduces load; provider quotas may still apply.
+
+
+Live Station v9.6: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
