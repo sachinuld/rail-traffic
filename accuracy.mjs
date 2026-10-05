@@ -3,16 +3,7 @@ export const MAX_AGE=300000;
 export const radiusKm=Math.max(0.5,Math.min(20,Number(process.env.STATION_RADIUS_KM)||5));
 export function isFresh(stamp,now=Date.now()){const t=Date.parse(stamp);return Number.isFinite(t)&&now-t<=MAX_AGE&&t-now<=60000;}
 export function km(a,b){if(!a||!b)return null;const rad=x=>x*Math.PI/180,dlat=rad(b.lat-a.lat),dlon=rad(b.lng-a.lng);return 6371*2*Math.asin(Math.min(1,Math.sqrt(Math.sin(dlat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dlon/2)**2)));}
-export function reportedPoint(d){
- const l=d?.currentLocation;if(!l||l.isActualPosition===false||l.provenance==='predicted'||l.isDiverted||(d.exceptions||[]).length)return null;
- const exact=point(l);if(exact)return exact;
- const route=Array.isArray(d.route)?d.route:[],i=route.findIndex(s=>s.stationCode===l.stationCode),here=route[i],next=route[i+1];
- if(l.status==='arrived')return point(here);
- const progress=Number(l.segmentProgress);
- const a=point(here),b=point(next);
- if(a&&b&&Number.isFinite(progress)&&progress>=0&&progress<=1)return {lat:a.lat+(b.lat-a.lat)*progress,lng:a.lng+(b.lng-a.lng)*progress};
- return null;
-}
+export function reportedPoint(d){const l=d?.currentLocation;if(!l||l.isActualPosition===false||l.provenance==='predicted'||l.isDiverted||(d.exceptions||[]).length)return null;return point(l)||(l.status==='arrived'?point(d.route?.find(s=>s.stationCode===l.stationCode)):null);}
 export function nearStation(d,code,radius=radiusKm,now=Date.now()){
  if(d?.isLive!==true||d.status!=='running'||!isFresh(d.lastUpdatedAt,now))return null;
  const route=d.route||[],stop=route.find(s=>s.stationCode===code),loc=d.currentLocation;

@@ -1,7 +1,7 @@
 import {service,storage} from './api.js';
 import {t,language,setLanguage,proximity,unavailable,liveUnavailable} from './i18n.js';
 import {$,el,today,time,fullTime,status,badge,empty,meta,errorBox,field,events,fresh} from './view.js';
-const state={page:'home',tab:'timeline',stationTab:'arrivals',station:null,stationData:null,stationOffset:0,stationTotal:0,train:null,date:today(),live:null,schedule:null,coaches:null,full:false,epoch:0,seq:{},busy:new Set(),results:null,routeResults:null};
+const state={page:'home',tab:'timeline',train:null,date:today(),live:null,schedule:null,coaches:null,full:false,epoch:0,seq:{},busy:new Set(),results:null,routeResults:null};
 const picks=new Map();
 const valid=(key,token)=>state.seq[key]===token;
 const begin=key=>(state.seq[key]=(state.seq[key]||0)+1);
@@ -13,11 +13,11 @@ theme(storage.get('rail-theme','light')==='dark');$('theme-toggle').onclick=()=>
 $('language').value=language;setLanguage(language);
 $('boarding-date').value=today();$('journey-date').value=today();$('endpoint').value=service.base;
 let connected=false;
-function connection(){ $('connection').textContent=connected?t('RailKit • NTES + WIMT • अपडेट का समय देखें','RailKit • NTES + WIMT • Check update times'):liveUnavailable(); }
+function connection(){ $('connection').textContent=connected?t('RailRadar • अपडेट का समय देखें','RailRadar • Check update times'):liveUnavailable(); }
 async function connect(){const token=begin('config');try{const c=await service.config();if(valid('config',token)){connected=c.liveConnected===true&&c.version>=9.2;}}catch{if(valid('config',token))connected=false;}connection();}
 $('settings-form').onsubmit=async e=>{e.preventDefault();try{service.configure($('endpoint').value.trim());reset();await connect();$('settings-message').textContent=connected?t('कनेक्ट हो गया।','Connected.'):liveUnavailable();}catch{$('settings-message').textContent=t('सही HTTPS सर्वर पता भरें।','Enter a valid HTTPS server address.');}};
-function reset(){for(const k of Object.keys(state.seq))begin(k);state.busy.clear();state.train=null;state.live=null;state.coaches=null;state.schedule=null;state.station=null;state.stationData=null;state.results=null;state.routeResults=null;for(const id of ['route-results','train-results','coach-results'])$(id).replaceChildren();$('train-content').hidden=true;$('train-empty').hidden=false;}
-function navigate(){const p=location.hash.slice(1)||'home';state.page=['home','search','live','station','more'].includes(p)?p:'home';document.querySelectorAll('[data-page]').forEach(n=>n.hidden=n.dataset.page!==state.page);document.querySelectorAll('[data-nav]').forEach(n=>n.setAttribute('aria-current',n.dataset.nav===state.page?'page':'false'));window.scrollTo(0,0);}
+function reset(){for(const k of Object.keys(state.seq))begin(k);state.busy.clear();state.train=null;state.live=null;state.coaches=null;state.schedule=null;state.results=null;state.routeResults=null;for(const id of ['route-results','train-results','coach-results'])$(id).replaceChildren();$('train-content').hidden=true;$('train-empty').hidden=false;}
+function navigate(){const p=location.hash.slice(1)||'home';state.page=['home','search','live','more'].includes(p)?p:'home';document.querySelectorAll('[data-page]').forEach(n=>n.hidden=n.dataset.page!==state.page);document.querySelectorAll('[data-nav]').forEach(n=>n.setAttribute('aria-current',n.dataset.nav===state.page?'page':'false'));window.scrollTo(0,0);}
 addEventListener('hashchange',navigate);navigate();
 // Navigation shortcuts reuse the Home forms; result screens never duplicate them.
 for(const link of document.querySelectorAll('[data-nav="search"],#train-empty a'))link.onclick=e=>{e.preventDefault();location.hash='home';state.page='home';navigate();requestAnimationFrame(()=>{const input=$('train-query');input.focus({preventScroll:true});input.closest('section.card').scrollIntoView({block:'center',behavior:'smooth'});});};
@@ -26,38 +26,6 @@ function setPick(id,s){picks.set(id,s);$(id).value=s.name+' ('+s.code+')';$(id+'
 function requirePick(id){if(picks.has(id))return picks.get(id);const code=$(id).value.trim().toUpperCase();if(/^[A-Z0-9]{1,10}$/.test(code))return {code,name:code};throw Error('station');}
 function setupPicker(id){let timer,seq=0,controller;const input=$(id),list=$(id+'-options');input.oninput=()=>{picks.delete(id);clearTimeout(timer);controller?.abort();const token=++seq;list.replaceChildren();const q=input.value.trim();input.setAttribute('aria-expanded','false');if(q.length<2)return;timer=setTimeout(async()=>{controller=new AbortController();try{const w=await service.stationSearch(q,controller.signal);if(token!==seq)return;list.replaceChildren();input.setAttribute('aria-expanded','true');for(const s of w.data){const b=button(s.name+' • '+s.code,()=>{seq++;setPick(id,s);input.focus();},'option');b.setAttribute('role','option');b.append(el('small',s.city||unavailable()));list.append(b);}if(!w.data.length)list.append(el('p',t('कोई स्टेशन नहीं मिला','No stations found'),'option-message'));}catch(e){if(token===seq&&e.name!=='AbortError')list.replaceChildren(el('p',liveUnavailable(),'option-message'));}},450);};input.onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();list.querySelector('button')?.focus();}if(e.key==='Escape'){seq++;list.replaceChildren();input.setAttribute('aria-expanded','false');}};list.onkeydown=e=>{const bs=[...list.querySelectorAll('button')],i=bs.indexOf(document.activeElement);if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();bs[(i+(e.key==='ArrowDown'?1:bs.length-1))%bs.length]?.focus();}if(e.key==='Escape'){list.replaceChildren();input.focus();input.setAttribute('aria-expanded','false');}};document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target)){list.replaceChildren();input.setAttribute('aria-expanded','false');}});}
 ['from','to'].forEach(setupPicker);
-
-function setupLiveStationPicker(id, targetId, onPick){
- let timer,seq=0,controller;
- const input=$(id),list=$(id+'-options');
- input.oninput=()=>{
-  clearTimeout(timer);controller?.abort();const token=++seq;list.replaceChildren();
-  const q=input.value.trim();input.setAttribute('aria-expanded','false');
-  if(q.length<2)return;
-  timer=setTimeout(async()=>{
-   controller=new AbortController();
-   try{
-    const w=await service.stationSearch(q,controller.signal);if(token!==seq)return;
-    list.replaceChildren();input.setAttribute('aria-expanded','true');
-    for(const st of w.data){
-      const b=button(st.name+' • '+st.code,()=>{
-        seq++;input.value=st.name+' ('+st.code+')';input.dataset.stationCode=st.code;
-        input.dataset.stationName=st.name;list.replaceChildren();input.setAttribute('aria-expanded','false');
-        onPick?.(st);
-      },'option');
-      b.setAttribute('role','option');b.append(el('small',st.city||unavailable()));list.append(b);
-    }
-    if(!w.data.length)list.append(el('p',t('कोई स्टेशन नहीं मिला','No stations found'),'option-message'));
-   }catch(e){if(token===seq&&e.name!=='AbortError')list.replaceChildren(el('p',liveUnavailable(),'option-message'));}
-  },350);
- };
- input.onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();list.querySelector('button')?.focus();}if(e.key==='Escape'){seq++;list.replaceChildren();input.setAttribute('aria-expanded','false');}};
- list.onkeydown=e=>{const bs=[...list.querySelectorAll('button')],i=bs.indexOf(document.activeElement);if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();bs[(i+(e.key==='ArrowDown'?1:bs.length-1))%bs.length]?.focus();}if(e.key==='Escape'){list.replaceChildren();input.focus();input.setAttribute('aria-expanded','false');}};
- document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target)){list.replaceChildren();input.setAttribute('aria-expanded','false');}});
-}
-setupLiveStationPicker('live-station','station-page-input',st=>{location.hash='station';requestAnimationFrame(()=>openStation(st));});
-setupLiveStationPicker('station-page-input',null,st=>openStation(st));
-
 $('swap').onclick=()=>{const a=$('from').value,b=$('to').value,pa=picks.get('from'),pb=picks.get('to');$('from').value=b;$('to').value=a;picks.delete('from');picks.delete('to');if(pa)picks.set('to',pa);if(pb)picks.set('from',pb);};
 function runDays(days){const names={Mon:['सोम','Mon'],Tue:['मंगल','Tue'],Wed:['बुध','Wed'],Thu:['गुरु','Thu'],Fri:['शुक्र','Fri'],Sat:['शनि','Sat'],Sun:['रवि','Sun']};return days?.length?days.map(d=>{const key=String(d).slice(0,3).toLowerCase();const a=names[key.charAt(0).toUpperCase()+key.slice(1)];return a?t(...a):d;}).join(' · '):unavailable();}
 function resultList(id,w,date){const target=$(id);target.replaceChildren(el('p',meta(w),'micro'));if(!w.data.length)return empty(target,t('कोई ट्रेन नहीं मिली।','No trains found.'));for(const r of w.data){const b=button('',()=>{let start=r.journeyDate||today();if(!r.journeyDate&&date&&Number.isInteger(r.boardingDay)){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-(r.boardingDay-1));start=d.toISOString().slice(0,10);}openTrain(r.number,start);},'search-result');b.append(el('h3',r.number+' • '+r.name),el('small',(r.from||'—')+' → '+(r.to||'—')),el('small',t('चलने के दिन: ','Running days: ')+runDays(r.runDays)));if(r.arrival||r.departure)b.append(el('small',t('प्रस्थान ','Departure ')+time(r.departure)+' • '+t('आगमन ','Arrival ')+time(r.arrival)));target.append(b);}}
@@ -65,109 +33,7 @@ async function searchTrains(q){const token=begin('search');location.hash='search
 $('train-search-form').onsubmit=e=>{e.preventDefault();searchTrains($('train-query').value.trim());};
 async function between(){const token=begin('between');try{const from=requirePick('from'),to=requirePick('to'),date=$('boarding-date').value;if(from.code===to.code){empty($('route-results'),t('दो अलग स्टेशन चुनें।','Choose two different stations.'));return;}loading('route-results');const w=await service.get('/api/between',{from:from.code,to:to.code,date});if(!valid('between',token))return;state.routeResults={w,date};resultList('route-results',w,date);}catch(e){if(valid('between',token))errorBox($('route-results'),e,between);}}
 $('between-form').onsubmit=e=>{e.preventDefault();between();};
-function nearBox(near,last,stamp,position=null){const box=el('div','','location-card');if(near&&fresh(stamp))box.append(el('strong','● '+near.stationName,'near-station'),el('small',proximity(near.proximity)+' • '+(Number.isFinite(near.distanceKm)?near.distanceKm+' km':unavailable())));else box.append(el('small',t('आखिरी दर्ज स्टेशन','Last reported station')),el('strong',last||unavailable()));if(position&&Number.isFinite(position.lat)&&Number.isFinite(position.lng)){const a=document.createElement('a');a.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(position.lat+','+position.lng);a.target='_blank';a.rel='noopener noreferrer';a.className='map-link';a.textContent=t('📍 वर्तमान पोजीशन मानचित्र पर देखें','📍 View current position on map');box.append(a);}return box;}
-
-function stationPickFromInput(id){
- const input=$(id),code=input.dataset.stationCode?.toUpperCase();
- if(/^[A-Z0-9]{1,10}$/.test(code||''))return {code,name:input.dataset.stationName||code};
- const raw=input.value.trim().toUpperCase();
- if(/^[A-Z0-9]{1,10}$/.test(raw))return {code:raw,name:raw};
- throw Error('station');
-}
-function stationTab(tab){
- state.stationTab=tab;
- document.querySelectorAll('[data-station-panel]').forEach(p=>p.hidden=p.dataset.stationPanel!==tab);
- document.querySelectorAll('[data-station-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.stationTab===tab)));
- renderStation();
-}
-document.querySelectorAll('[data-station-tab]').forEach(b=>b.onclick=()=>stationTab(b.dataset.stationTab));
-
-function stationMapLink(row){
- const p=row.position;
- if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))return null;
- const a=document.createElement('a');
- a.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lat+','+p.lng);
- a.target='_blank';a.rel='noopener noreferrer';a.className='map-link';
- a.textContent=t('📍 मानचित्र पर लोकेशन','📍 View location on map');
- a.onclick=e=>e.stopPropagation();
- return a;
-}
-function renderStationRow(row,nonstop=false){
- const card=el('article','','station-train-card'+(nonstop?' nonstop-card':''));
- const top=el('div','','station-train-top');
- const title=el('div');title.append(el('strong',row.number+' • '+row.name,'station-train-name'));
- title.append(el('small',row.from+' → '+row.to));
- top.append(title);
- const kind=nonstop?t('🚄 नॉन-स्टॉप','🚄 Non-stop'):row.isHalt?t('● ठहराव','● Stop'):t('↗ पास से गुजर रही','↗ Passing');
- top.append(el('span',kind,'pill '+(nonstop?'nonstop':'ontime')));
- card.append(top);
- const grid=el('div','','station-facts');
- const expected=row.isHalt?row.expectedArrival:row.expectedPassingTime;
- const scheduled=row.isHalt?row.scheduledArrival:row.expectedPassingTime||row.scheduledArrival;
- grid.append(field(t('समय','Time'),time(expected||scheduled),'normal-time'));
- if(row.isHalt)grid.append(field(t('प्रस्थान','Departure'),time(row.expectedDeparture||row.scheduledDeparture),'normal-time'));
- grid.append(field(t('देरी','Delay'),status(row.delayMinutes).label,status(row.delayMinutes).cls));
- if(nonstop||row.visitKind==='near')grid.append(field(t('स्टेशन से दूरी','Distance'),Number.isFinite(row.distanceKm)?row.distanceKm+' km':unavailable()));
- grid.append(field(t('गति','Speed'),speed(row.speedKmh)));
- card.append(grid);
- card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',t(row.number+' की लाइव लोकेशन देखें','View live location of train '+row.number));
- const open=()=>openTrain(row.number,row.journeyDate||today());
- card.onclick=open;card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
- const loc=el('div','','station-location');
- if(row.visitKind==='near')loc.append(el('strong',t('● अभी स्टेशन के पास','● Currently near station'),'near-station'));
- else if(row.currentLocation)loc.append(el('small',t('अभी दर्ज लोकेशन: ','Last reported: ')+row.currentLocation));
- if(row.lastReportedLocation)loc.append(el('small',row.lastReportedLocation));
- const link=stationMapLink(row);if(link)loc.append(link);
- if(row.updatedAt)loc.append(el('small',t('अपडेट: ','Updated: ')+fullTime(row.updatedAt)));
- if(loc.childNodes.length)card.append(loc);
- return card;
-}
-function renderStation(){
- const w=state.stationData;if(!w)return;
- const d=w.data||{};$('station-title').textContent=(d.station?.name||state.station?.name||state.station?.code||'')+' ('+(d.station?.code||state.station?.code||'')+')';
- $('station-meta').textContent=meta(w)+' • '+t('अगले 4 घंटे','Next 4 hours');
- const rows=d.rows||[];
- const arrivals=rows.filter(r=>r.isHalt===true);
- const nonstop=rows.filter(r=>r.isHalt===false && r.visitKind==='near');
- const target=state.stationTab==='nonstop'?$('station-nonstop'):$('station-arrivals');
- target.replaceChildren();
- const list=state.stationTab==='nonstop'?nonstop:arrivals;
- if(!list.length){
-  target.append(el('div',state.stationTab==='nonstop'?t('अभी स्टेशन के आसपास कोई लाइव नॉन-स्टॉप ट्रेन नहीं मिली।','No live non-stop train is currently near this station.'):t('अगले 4 घंटे में कोई लाइव ट्रेन नहीं मिली।','No live train was found for the next 4 hours.'),'empty'));
- }else list.forEach(r=>target.append(renderStationRow(r,state.stationTab==='nonstop')));
- $('station-more').hidden=state.stationTab==='nonstop'||!d.nextOffset;
-}
-async function loadStation(station=state.station){
- if(!station)return;
- state.station=station;state.stationOffset=0;state.stationData=null;
- const token=begin('station');$('station-content').hidden=false;$('station-error').replaceChildren();loading('station-arrivals');loading('station-nonstop');
- $('station-more').hidden=true;$('station-refresh').disabled=true;
- try{
-  const w=await service.liveStation(station.code,0);if(!valid('station',token))return;
-  state.stationData=w;renderStation();
- }catch(e){if(valid('station',token))errorBox($('station-error'),e,()=>loadStation(station));}
- finally{if(valid('station',token))$('station-refresh').disabled=false;}
-}
-function openStation(station){
- if(!station)return;
- $('live-station').value=station.name+' ('+station.code+')';$('live-station').dataset.stationCode=station.code;$('live-station').dataset.stationName=station.name;
- $('station-page-input').value=station.name+' ('+station.code+')';$('station-page-input').dataset.stationCode=station.code;$('station-page-input').dataset.stationName=station.name;
- state.stationTab='arrivals';stationTab('arrivals');loadStation(station);
-}
-$('station-form').onsubmit=e=>{e.preventDefault();try{openStation(stationPickFromInput('live-station'));location.hash='station';}catch{errorBox($('route-results'),Error('station'),()=>{});}};
-$('station-page-form').onsubmit=e=>{e.preventDefault();try{openStation(stationPickFromInput('station-page-input'));}catch{errorBox($('station-error'),Error('station'),()=>{});}};
-$('station-refresh').onclick=()=>loadStation();
-$('station-more').onclick=async()=>{
- const w=state.stationData;if(!w?.data?.nextOffset||!state.station)return;
- const token=begin('station-more');$('station-more').disabled=true;
- try{
-  const n=await service.liveStation(state.station.code,w.data.nextOffset);if(!valid('station-more',token))return;
-  const merged=[...(w.data.rows||[]),...(n.data.rows||[])];
-  state.stationData={...n,data:{...n.data,rows:merged,nextOffset:n.data.nextOffset}};
-  renderStation();
- }catch(e){if(valid('station-more',token))errorBox($('station-error'),e,()=>loadStation());}
- finally{if(valid('station-more',token))$('station-more').disabled=false;}
-};
+function nearBox(near,last,stamp){const box=el('div','','location-card');if(near&&fresh(stamp))box.append(el('strong','● '+near.stationName,'near-station'),el('small',proximity(near.proximity)+' • '+near.distanceKm+' km'));else box.append(el('small',t('आखिरी दर्ज स्टेशन','Last reported station')),el('strong',last||unavailable()));return box;}
 function showTab(tab){state.tab=tab;document.querySelectorAll('[data-train-panel]').forEach(p=>p.hidden=p.dataset.trainPanel!==tab);document.querySelectorAll('[data-train-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.trainTab===tab)));}
 
 for(const b of document.querySelectorAll('[data-train-tab]'))b.onclick=()=>showTab(b.dataset.trainTab);
@@ -175,7 +41,7 @@ function openTrain(number,date=today()){for(const k of ['train','coach','geometr
 function renderRoute(){const d=state.live?.data;if(!d)return;const rows=d.stations||[],current=rows.findIndex(s=>s.isCurrent);$('full-route').textContent=state.full?t('गुजर चुके स्टेशन छुपाएँ','Hide Passed Stations'):t('पूरा रूट देखें','Show Full Route');$('timeline').replaceChildren();if(current<0&&!state.full){$('timeline').append(el('p',t('वर्तमान स्टेशन की पुष्टि नहीं है; आने वाले स्टेशन दिखाए गए हैं।','Current station is unconfirmed; showing upcoming stations.'),'micro'));}
 for(const [i,s]of rows.entries()){if(!state.full&&(current>=0?i<current:['departed','skipped'].includes(s.rawStatus)))continue;const near=d.location?.near?.stationCode===s.code&&fresh(state.live.updatedAt);const row=el('article','','timeline-row'+(s.isHalt?' halt':'')+(near?' current':'')),center=el('div','','timeline-center');center.append(el('h3',s.name,near?'near-station':''),el('p',s.code+' • '+(s.distance??'—')+' km'),el('p',t('प्लेटफॉर्म ','Platform ')+(s.platform??'—')));if(near)center.append(el('strong',proximity(d.location.near.proximity),'current-label'));else center.append(el('small',proximity(s.rawStatus)));if(s.isHalt)center.append(el('small',t('● ठहराव','● Scheduled stop'),'stop-badge'));for(const key of ['arrival','departure']){const ev=s[key],cell=el('div','','time-cell');cell.append(el('span',time(ev?.scheduled),'normal-time'),el('small',(ev?.actual?t('दर्ज ','Actual '):t('संभावित ','Expected '))+time(ev?.actual||ev?.expected),'normal-time'));const delay=s[key==='arrival'?'delayArrival':'delayDeparture'];if(Number.isFinite(delay))cell.append(el('small',status(delay).label,status(delay).cls));if(key==='arrival')row.append(cell,center);else row.append(cell);} $('timeline').append(row);}}
 $('full-route').onclick=()=>{state.full=!state.full;renderRoute();};
-function renderTrain(){const w=state.live;if(!w)return;const d=w.data,l=d.location||{};$('train-title').textContent=d.train.number+' • '+d.train.name;$('train-route').textContent=d.train.routeName||'';$('train-meta').textContent=meta(w);$('current-location').replaceChildren(nearBox(l.near,l.lastReportedStation,w.updatedAt,l.position));$('train-stats').replaceChildren(field(t('अगला स्टेशन','Next station'),l.next),field(t('पिछला स्टेशन','Previous station'),l.previous),field(t('देरी','Delay'),status(d.train.delayMinutes).label,status(d.train.delayMinutes).cls),field(t('गति','Speed'),speed(l.speedKmh)),field(t('स्थिति','Status'),proximity(d.train.status)),field(t('अगले ठहराव पर आगमन','Next halt ETA'),time(d.stations.find(s=>s.isHalt&&s.rawStatus==='upcoming')?.arrival?.expected)));
+function renderTrain(){const w=state.live;if(!w)return;const d=w.data,l=d.location||{};$('train-title').textContent=d.train.number+' • '+d.train.name;$('train-route').textContent=d.train.routeName||'';$('train-meta').textContent=meta(w);$('current-location').replaceChildren(nearBox(l.near,l.lastReportedStation,w.updatedAt));$('train-stats').replaceChildren(field(t('अगला स्टेशन','Next station'),l.next),field(t('पिछला स्टेशन','Previous station'),l.previous),field(t('देरी','Delay'),status(d.train.delayMinutes).label,status(d.train.delayMinutes).cls),field(t('गति','Speed'),speed(l.speedKmh)),field(t('स्थिति','Status'),proximity(d.train.status)),field(t('अगले ठहराव पर आगमन','Next halt ETA'),time(d.stations.find(s=>s.isHalt&&s.rawStatus==='upcoming')?.arrival?.expected)));
 const selected=$('coach-station').value;$('coach-station').replaceChildren();for(const s of d.stations.filter(s=>s.isHalt)){const o=el('option',s.name+' ('+s.code+')');o.value=s.code;$('coach-station').append(o);}if([...$('coach-station').options].some(o=>o.value===selected))$('coach-station').value=selected;$('coach-load').disabled=!$('coach-station').options.length;renderRoute();}
 async function loadTrain(){if(!state.train||state.busy.has('train'))return;const token=begin('train');state.busy.add('train');$('train-refresh').disabled=true;if(!state.live)loading('timeline');try{const w=await service.liveTrain(state.train,state.date);if(!valid('train',token))return;state.live=w;$('train-error').replaceChildren();renderTrain();}catch(e){if(valid('train',token)){errorBox($('train-error'),e,loadTrain);if(state.live)renderTrain();else{empty($('timeline'),liveUnavailable());$('train-error').append(button(t('समय-सारणी देखें','View schedule'),loadSchedule));}}}finally{if(valid('train',token)){state.busy.delete('train');$('train-refresh').disabled=false;}}}
 async function loadSchedule(){const token=begin('schedule');try{const w=await service.schedule(state.train);if(!valid('schedule',token))return;state.schedule=w;renderSchedule();}catch(e){if(valid('schedule',token))errorBox($('train-error'),e,loadSchedule);}}
@@ -185,8 +51,8 @@ const berthTypes={LB:['नीचे की बर्थ','Lower berth'],MB:['ब
 function renderCoaches(){const w=state.coaches;if(!w)return;const target=$('coach-results');target.replaceChildren(el('p',meta(w),'micro'));const list=el('div','','coach-list'),detail=el('div','','berth-detail');function select(c){state.selectedCoach=c.code;detail.replaceChildren(el('h3',c.code+' • '+(c.classType||unavailable())),el('p',t('नंबर और बर्थ स्तर सेवा के blueprint के अनुसार।','Numbers and berth levels follow the provider blueprint.'),'micro'));const b=c.blueprint;if(!b){detail.append(el('p',t('इस कोच की सीट/बर्थ बनावट सेवा से उपलब्ध नहीं है।','Seat/berth layout is unavailable from the provider for this coach.')));return;}if(!b.complete)detail.append(el('p',t('आंशिक blueprint — केवल प्राप्त सीटें दिखाई गई हैं।','Partial blueprint — only supplied seats are shown.'),'micro'));for(const cabin of b.cabins){const row=el('section','','cabin'+(['CC','EC','2S'].includes(c.classType)?' sitting':' sleeping'));row.append(el('h4',t('केबिन / पंक्ति ','Cabin / row ')+cabin.number));const layout=el('div','','berth-layout');for(const [key,label]of [['main',t('मुख्य सीटें','Main seats')],['side',t('साइड सीटें','Side seats')]]){const group=el('div','','berth-group');if(key==='main'&&['1A','2A','EC'].includes(c.classType))group.style.gridTemplateColumns='repeat(2,minmax(0,1fr))';group.setAttribute('aria-label',label);for(const s of cabin[key]){const seat=el('div','','berth berth-'+s.type.toLowerCase());seat.title=berthTypes[s.type]?t(...berthTypes[s.type]):s.type;seat.setAttribute('aria-label',s.number+' '+seat.title);seat.append(el('strong',s.number),el('span',s.type));group.append(seat);}layout.append(group);}row.append(layout);detail.append(row);}detail.append(el('p',Object.entries(berthTypes).map(([k,v])=>k+' = '+t(...v)).join(' · '),'berth-legend'));}for(const c of w.data.coaches){const b=button(c.code+' · '+(c.classType||'—'),()=>{list.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));select(c);},'coach');list.append(b);}target.append(list,detail);if(w.data.coaches[0]){const chosen=w.data.coaches.find(c=>c.code===state.selectedCoach)||w.data.coaches.find(c=>c.blueprint)||w.data.coaches[0];[...list.children].find(n=>n.textContent.startsWith(chosen.code+' ·'))?.setAttribute('aria-pressed','true');select(chosen);}}
 async function coaches(){const station=$('coach-station').value;if(!station||!state.train)return;const token=begin('coach');$('coach-load').disabled=true;loading('coach-results');try{const w=await service.coachPosition(state.train,station);if(valid('coach',token)){state.coaches=w;renderCoaches();}}catch(e){if(valid('coach',token))errorBox($('coach-results'),e,coaches);}finally{if(valid('coach',token))$('coach-load').disabled=false;}}
 $('coach-form').onsubmit=e=>{e.preventDefault();coaches();};$('coach-station').onchange=()=>{begin('coach');state.coaches=null;$('coach-results').replaceChildren();$('coach-load').disabled=false;};
-$('language').onchange=e=>{setLanguage(e.target.value);connection();if(state.results)resultList('train-results',state.results);if(state.routeResults)resultList('route-results',state.routeResults.w,state.routeResults.date);renderTrain();renderSchedule();renderCoaches();renderStation();document.querySelectorAll('.error').forEach(box=>{box.querySelector('strong').textContent=liveUnavailable();const p=box.querySelector('p');if(p)p.textContent=t('कुछ देर बाद फिर कोशिश करें।','Please retry shortly.');box.querySelector('button').textContent=t('↻ फिर कोशिश करें','↻ Retry');});};
+$('language').onchange=e=>{setLanguage(e.target.value);connection();if(state.results)resultList('train-results',state.results);if(state.routeResults)resultList('route-results',state.routeResults.w,state.routeResults.date);renderTrain();renderSchedule();renderCoaches();document.querySelectorAll('.error').forEach(box=>{box.querySelector('strong').textContent=liveUnavailable();const p=box.querySelector('p');if(p)p.textContent=t('कुछ देर बाद फिर कोशिश करें।','Please retry shortly.');box.querySelector('button').textContent=t('↻ फिर कोशिश करें','↻ Retry');});};
 setInterval(()=>{if(document.hidden)return;if(state.live){$('train-meta').textContent=meta(state.live);if(!fresh(state.live.updatedAt)){renderTrain();}}},15000);
-setInterval(()=>{if(document.hidden||!$('auto-switch').checked||Date.now()<service.cooldown)return;if(state.page==='live'&&state.tab!=='map'){loadTrain();}if(state.page==='station'&&state.station){loadStation();}},60000);
+setInterval(()=>{if(document.hidden||!$('auto-switch').checked||Date.now()<service.cooldown)return;if(state.page==='live'&&state.tab!=='map'){loadTrain();}},60000);
 connect();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 

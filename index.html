@@ -1,235 +1,62 @@
-<!doctype html>
-<html lang="hi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#155f9d">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <title>Indian Rail Live</title>
-</head>
-<body>
-  <header class="appbar">
-    <a href="#home" class="brand">
-      <span class="brand-icon">▤</span>
-      <span>INDIAN RAIL LIVE</span>
-    </a>
-    <div class="header-actions">
-      <select id="language" aria-label="Language / भाषा">
-        <option value="hi">हिंदी</option>
-        <option value="en">English</option>
-      </select>
-      <button id="theme-toggle" class="icon-button" aria-label="Theme / रंग">◐</button>
-    </div>
-  </header>
-
-  <div id="connection" class="connection" role="status"></div>
-
-  <main>
-    <!-- होम पेज -->
-    <section data-page="home">
-      <h1 data-hi="आज कहाँ जाना है?" data-en="Where are you heading?">आज कहाँ जाना है?</h1>
-      <div class="home-grid">
-        <section class="card" id="home-route-section">
-          <h2 data-hi="स्टेशन से स्टेशन" data-en="From → To">स्टेशन से स्टेशन</h2>
-          <form id="between-form">
-            <div class="compact-route">
-              <div class="from-field">
-                <label for="from" data-hi="कहाँ से" data-en="From">कहाँ से</label>
-                <div class="station-picker">
-                  <input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required>
-                  <div id="from-options" class="options" role="listbox"></div>
-                </div>
-              </div>
-              <button id="swap" type="button" class="swap" aria-label="Swap stations">⇄</button>
-              <div class="to-field">
-                <label for="to" data-hi="कहाँ तक" data-en="To">कहाँ तक</label>
-                <div class="station-picker">
-                  <input id="to" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="To Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required>
-                  <div id="to-options" class="options" role="listbox"></div>
-                </div>
-              </div>
-            </div>
-            <div class="compact-date">
-              <label for="boarding-date" data-hi="यात्रा तारीख" data-en="Boarding date">यात्रा तारीख</label>
-              <input id="boarding-date" type="date" required>
-              <button id="route-search" class="primary" data-hi="ट्रेनें खोजें" data-en="Find trains">ट्रेनें खोजें</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="card" id="home-train-section">
-          <h2 data-hi="ट्रेन नंबर / नाम" data-en="Train No / Train Name">ट्रेन नंबर / नाम</h2>
-          <form id="train-search-form" class="inline-form">
-            <input id="train-query" data-hi="ट्रेन नंबर या नाम" data-en="Train number or name" placeholder="ट्रेन नंबर या नाम" aria-label="Train number or name" autocomplete="off" required>
-            <button data-hi="खोजें" data-en="Search" id="train-search" class="primary">खोजें</button>
-          </form>
-        </section>
-
-        <section class="card" id="home-station-section">
-          <h2 data-hi="🚉 लाइव स्टेशन" data-en="🚉 Live Station">🚉 लाइव स्टेशन</h2>
-          <p class="micro" data-hi="स्टेशन चुनें और अगले 4 घंटे की लाइव स्थिति देखें।" data-en="Choose a station to see live trains for the next 4 hours.">स्टेशन चुनें और अगले 4 घंटे की लाइव स्थिति देखें।</p>
-          <form id="station-form" class="inline-form">
-            <div class="station-picker">
-              <input id="live-station" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="Live Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="live-station-options" required>
-              <div id="live-station-options" class="options" role="listbox"></div>
-            </div>
-            <button id="station-load" class="primary" data-hi="लाइव देखें" data-en="View Live">लाइव देखें</button>
-          </form>
-        </section>
-      </div>
-
-      <a class="utility" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en">
-        <b data-hi="PNR • आधिकारिक रेलवे वेबसाइट ↗" data-en="PNR • Official railway website ↗">PNR • आधिकारिक रेलवे वेबसाइट ↗</b>
-      </a>
-      <div id="route-results" aria-live="polite"></div>
-    </section>
-
-    <!-- सर्च पेज -->
-    <section data-page="search" hidden>
-      <h1 data-hi="ट्रेन खोज के नतीजे" data-en="Train results">ट्रेन खोज के नतीजे</h1>
-      <div id="train-results" aria-live="polite"></div>
-    </section>
-
-    <!-- लाइव ट्रेन पेज -->
-    <section data-page="live" hidden>
-      <div id="train-empty" class="empty">
-        <a data-hi="पहले ट्रेन खोजें →" data-en="Search a train first →" href="#search">पहले ट्रेन खोजें →</a>
-      </div>
-      <div id="train-content" hidden>
-        <div class="train-header">
-          <div>
-            <small>RAILKIT • NTES + WIMT • LIVE</small>
-            <h1 id="train-title"></h1>
-            <p id="train-route"></p>
-          </div>
-        </div>
-        <div class="train-controls">
-          <label data-hi="यात्रा शुरू होने की तारीख" data-en="Journey start date" for="journey-date">यात्रा शुरू होने की तारीख</label>
-          <input id="journey-date" type="date">
-          <button data-hi="आज" data-en="Today" id="today" class="secondary">आज</button>
-          <button data-hi="↻ अपडेट" data-en="↻ Refresh" id="train-refresh" class="secondary">↻ अपडेट</button>
-        </div>
-        <p data-hi="ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।" data-en="Choose the date the train left its origin." class="micro">ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।</p>
-        <div id="train-error"></div>
-        <p id="train-meta" class="micro"></p>
-        <div id="current-location"></div>
-        <div id="train-stats" class="stats"></div>
-        
-        <div class="segmented train-tabs">
-          <button data-hi="लाइव / रूट" data-en="Live Route" data-train-tab="timeline" aria-pressed="true">लाइव / रूट</button>
-          <button data-hi="लाइव ट्रेन मैप" data-en="Live Train Map" data-train-tab="map" aria-pressed="false">लाइव ट्रेन मैप</button>
-          <button data-hi="कोच / बर्थ" data-en="Coach / Berth" data-train-tab="coaches" aria-pressed="false">कोच / बर्थ</button>
-        </div>
-        
-        <div data-train-panel="timeline">
-          <button data-hi="पूरा रूट देखें" data-en="Show Full Route" id="full-route" class="secondary">पूरा रूट देखें</button>
-          <div class="timeline-head">
-            <span data-hi="आगमन" data-en="Arrival">आगमन</span>
-            <span data-hi="स्टेशन / प्लेटफॉर्म" data-en="Station / Platform">स्टेशन / प्लेटफॉर्म</span>
-            <span data-hi="प्रस्थान" data-en="Departure">प्रस्थान</span>
-          </div>
-          <div id="timeline"></div>
-        </div>
-        
-        <div data-train-panel="map" hidden>
-          <section class="card radar-link-card">
-            <span class="radar-icon" aria-hidden="true">↗</span>
-            <p data-hi="RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।" data-en="View the live train map on RailRadar. The button opens its website in a new tab.">RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।</p>
-            <a class="primary radar-link" href="https://railradar.in/railradar" target="_blank" rel="noopener noreferrer" data-hi="RailRadar मैप खोलें ↗" data-en="Open RailRadar Map ↗">RailRadar मैप खोलें ↗</a>
-          </section>
-        </div>
-        
-        <div data-train-panel="coaches" hidden>
-          <div class="card">
-            <h2 data-hi="कोच और सीटों की बनावट" data-en="Coach and berth layout">कोच और सीटों की बनावट</h2>
-            <p data-hi="सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।" data-en="Provider blueprint, not seat availability. Actual rake may differ." class="micro">सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।</p>
-            <form id="coach-form" class="inline-form">
-              <select id="coach-station" aria-label="Coach station / स्टेशन" required></select>
-              <button data-hi="कोच देखें" data-en="View coaches" id="coach-load" class="primary">कोच देखें</button>
-            </form>
-            <div id="coach-results"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- लाइव स्टेशन पेज -->
-    <section data-page="station" hidden>
-      <h1 data-hi="🚉 लाइव स्टेशन" data-en="🚉 Live Station">🚉 लाइव स्टेशन</h1>
-      <div class="card station-picker-card">
-        <form id="station-page-form" class="inline-form">
-          <div class="station-picker">
-            <input id="station-page-input" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="Live Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="station-page-options" required>
-            <div id="station-page-options" class="options" role="listbox"></div>
-          </div>
-          <button id="station-page-load" class="primary" data-hi="अपडेट" data-en="Load">अपडेट</button>
-        </form>
-      </div>
-      <div id="station-error"></div>
-      <div id="station-content" hidden>
-        <div class="station-header card">
-          <div>
-            <small>RAILKIT • NTES + WIMT • LIVE STATION</small>
-            <h2 id="station-title"></h2>
-            <p id="station-meta" class="micro"></p>
-          </div>
-          <button id="station-refresh" class="secondary" data-hi="↻ अपडेट" data-en="↻ Refresh">↻ अपडेट</button>
-        </div>
-        <div class="segmented station-tabs">
-          <button data-station-tab="arrivals" aria-pressed="true" data-hi="अगले 4 घंटे" data-en="Next 4 hours">अगले 4 घंटे</button>
-          <button data-station-tab="nonstop" aria-pressed="false" data-hi="🚄 नॉन-स्टॉप" data-en="🚄 Non-stop">🚄 नॉन-स्टॉप</button>
-        </div>
-        <div data-station-panel="arrivals">
-          <p class="upcoming-label" data-hi="स्टेशन पर आने/रुकने वाली ट्रेनें — अगले 4 घंटे" data-en="Arrivals/stops at this station — next 4 hours">स्टेशन पर आने/रुकने वाली ट्रेनें — अगले 4 घंटे</p>
-          <div id="station-arrivals"></div>
-        </div>
-        <div data-station-panel="nonstop" hidden>
-          <p class="upcoming-label" data-hi="स्टेशन के आसपास अभी गुजर रही नॉन-स्टॉप ट्रेनें" data-en="Non-stop trains currently passing near this station">स्टेशन के आसपास अभी गुजर रही नॉन-स्टॉप ट्रेनें</p>
-          <div id="station-nonstop"></div>
-        </div>
-        <button id="station-more" class="secondary" hidden data-hi="और ट्रेनें देखें" data-en="Load more trains">और ट्रेनें देखें</button>
-      </div>
-    </section>
-
-    <!-- सेटिंग्स / अधिक पेज -->
-    <section data-page="more" hidden>
-      <h1 data-hi="सेटिंग्स" data-en="Settings">सेटिंग्स</h1>
-      <section class="card">
-        <label class="switch-row">
-          <span data-hi="डार्क मोड" data-en="Dark Mode">डार्क मोड</span>
-          <input id="dark-switch" type="checkbox">
-        </label>
-        <label class="switch-row">
-          <span data-hi="हर 60 सेकंड में अपडेट" data-en="Refresh every 60 seconds">हर 60 सेकंड में अपडेट</span>
-          <input id="auto-switch" type="checkbox" checked>
-        </label>
-        <p data-hi="ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।" data-en="Updates while the train page is visible. Pauses at API rate limits." class="micro">ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।</p>
-      </section>
-      
-      <section class="card">
-        <h2 data-hi="सर्वर कनेक्शन" data-en="Server connection">सर्वर कनेक्शन</h2>
-        <form id="settings-form">
-          <label data-hi="सर्वर का HTTPS पता" data-en="Server HTTPS address" for="endpoint">सर्वर का HTTPS पता</label>
-          <input id="endpoint" type="url" required>
-          <button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
-        </form>
-        <p id="settings-message" role="status"></p>
-      </section>
-      
-      <p data-hi="Indian Rail Live • संस्करण 9.6.0 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.6.0 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.6.0 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
-    </section>
-  </main>
-
-  <!-- बॉटम नेविगेशन -->
-  <nav class="bottom-nav" aria-label="Navigation">
-    <a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
-    <a data-hi="⌕ खोज" data-en="⌕ Search" href="#search" data-nav="search">⌕ खोज</a>
-    <a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a>
-    <a data-hi="🚉 स्टेशन" data-en="🚉 Station" href="#station" data-nav="station">🚉 स्टेशन</a>
-    <a data-hi="☰ अधिक" data-en="☰ More" href="#more" data-nav="more">☰ अधिक</a>
-  </nav>
-
-  <script type="module" src="app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155f9d"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>Indian Rail Live</title></head><body><header class="appbar"><a href="#home" class="brand"><span class="brand-icon">▤</span><span>INDIAN RAIL LIVE</span></a><div class="header-actions"><select id="language" aria-label="Language / भाषा"><option value="hi">हिंदी</option><option value="en">English</option></select><button id="theme-toggle" class="icon-button" aria-label="Theme / रंग">◐</button></div></header><div id="connection" class="connection" role="status"></div><main><section data-page="home">
+<h1 data-hi="आज कहाँ जाना है?" data-en="Where are you heading?" >आज कहाँ जाना है?</h1>
+<div class="home-grid"><section class="card" id="home-route-section">
+<h2 data-hi="स्टेशन से स्टेशन" data-en="From → To" >स्टेशन से स्टेशन</h2>
+<form id="between-form">
+<div class="compact-route"><div class="from-field"><label for="from" data-hi="कहाँ से" data-en="From">कहाँ से</label><div class="station-picker"><input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div></div>
+<button id="swap" type="button" class="swap" aria-label="Swap stations">⇄</button>
+<div class="to-field"><label for="to" data-hi="कहाँ तक" data-en="To">कहाँ तक</label><div class="station-picker"><input id="to" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="To Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required><div id="to-options" class="options" role="listbox"></div></div></div></div>
+<div class="compact-date"><label for="boarding-date" data-hi="यात्रा तारीख" data-en="Boarding date">यात्रा तारीख</label><input id="boarding-date" type="date" required><button id="route-search" class="primary" data-hi="ट्रेनें खोजें" data-en="Find trains">ट्रेनें खोजें</button></div>
+</form></section><section class="card" id="home-train-section"><h2 data-hi="ट्रेन नंबर / नाम" data-en="Train No / Train Name">ट्रेन नंबर / नाम</h2><form id="train-search-form" class="inline-form">
+<input id="train-query" data-hi="ट्रेन नंबर या नाम" data-en="Train number or name" placeholder="ट्रेन नंबर या नाम" aria-label="Train number or name" autocomplete="off" required>
+<button data-hi="खोजें" data-en="Search" id="train-search" class="primary">खोजें</button>
+</form></section></div><a class="utility" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en">
+<b data-hi="PNR • आधिकारिक रेलवे वेबसाइट ↗" data-en="PNR • Official railway website ↗" >PNR • आधिकारिक रेलवे वेबसाइट ↗</b>
+</a><div id="route-results" aria-live="polite"></div></section><section data-page="search" hidden>
+<h1 data-hi="ट्रेन खोज के नतीजे" data-en="Train results">ट्रेन खोज के नतीजे</h1>
+<div id="train-results" aria-live="polite"></div></section><section data-page="live" hidden><div id="train-empty" class="empty">
+<a data-hi="पहले ट्रेन खोजें →" data-en="Search a train first →" href="#search">पहले ट्रेन खोजें →</a>
+</div><div id="train-content" hidden><div class="train-header"><div><small>RAILRADAR • LIVE</small><h1 id="train-title"></h1><p id="train-route"></p></div></div><div class="train-controls">
+<label data-hi="यात्रा शुरू होने की तारीख" data-en="Journey start date" for="journey-date">यात्रा शुरू होने की तारीख</label>
+<input id="journey-date" type="date">
+<button data-hi="आज" data-en="Today" id="today" class="secondary">आज</button>
+<button data-hi="↻ अपडेट" data-en="↻ Refresh" id="train-refresh" class="secondary">↻ अपडेट</button>
+</div>
+<p data-hi="ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।" data-en="Choose the date the train left its origin." class="micro">ट्रेन अपने शुरुआती स्टेशन से जिस तारीख को चली, वह चुनें।</p>
+<div id="train-error"></div><p id="train-meta" class="micro"></p><div id="current-location"></div><div id="train-stats" class="stats"></div><div class="segmented train-tabs">
+<button data-hi="लाइव / रूट" data-en="Live Route" data-train-tab="timeline" aria-pressed="true">लाइव / रूट</button>
+<button data-hi="लाइव ट्रेन मैप" data-en="Live Train Map" data-train-tab="map" aria-pressed="false">लाइव ट्रेन मैप</button>
+<button data-hi="कोच / बर्थ" data-en="Coach / Berth" data-train-tab="coaches" aria-pressed="false">कोच / बर्थ</button>
+</div><div data-train-panel="timeline">
+<button data-hi="पूरा रूट देखें" data-en="Show Full Route" id="full-route" class="secondary">पूरा रूट देखें</button>
+<div class="timeline-head">
+<span data-hi="आगमन" data-en="Arrival" >आगमन</span>
+<span data-hi="स्टेशन / प्लेटफॉर्म" data-en="Station / Platform" >स्टेशन / प्लेटफॉर्म</span>
+<span data-hi="प्रस्थान" data-en="Departure" >प्रस्थान</span>
+</div><div id="timeline"></div></div><div data-train-panel="map" hidden><section class="card radar-link-card"><span class="radar-icon" aria-hidden="true">↗</span><p data-hi="RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।" data-en="View the live train map on RailRadar. The button opens its website in a new tab.">RailRadar पर लाइव ट्रेन मैप देखें। बटन दबाने पर वेबसाइट नए टैब में खुलेगी।</p><a class="primary radar-link" href="https://railradar.in/railradar" target="_blank" rel="noopener noreferrer" data-hi="RailRadar मैप खोलें ↗" data-en="Open RailRadar Map ↗">RailRadar मैप खोलें ↗</a></section></div><div data-train-panel="coaches" hidden><div class="card">
+<h2 data-hi="कोच और सीटों की बनावट" data-en="Coach and berth layout" >कोच और सीटों की बनावट</h2>
+<p data-hi="सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।" data-en="Provider blueprint, not seat availability. Actual rake may differ." class="micro">सेवा से मिला blueprint; सीट उपलब्धता नहीं। वास्तविक रेक में बदलाव संभव है।</p>
+<form id="coach-form" class="inline-form"><select id="coach-station" aria-label="Coach station / स्टेशन" required></select>
+<button data-hi="कोच देखें" data-en="View coaches" id="coach-load" class="primary">कोच देखें</button>
+</form><div id="coach-results"></div></div></div></div></section><section data-page="more" hidden>
+<h1 data-hi="सेटिंग्स" data-en="Settings" >सेटिंग्स</h1>
+<section class="card"><label class="switch-row">
+<span data-hi="डार्क मोड" data-en="Dark Mode" >डार्क मोड</span>
+<input id="dark-switch" type="checkbox"></label><label class="switch-row">
+<span data-hi="हर 60 सेकंड में अपडेट" data-en="Refresh every 60 seconds" >हर 60 सेकंड में अपडेट</span>
+<input id="auto-switch" type="checkbox" checked></label>
+<p data-hi="ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।" data-en="Updates while the train page is visible. Pauses at API rate limits." class="micro">ट्रेन पेज खुला होने पर अपडेट होता है। API सीमा आने पर कुछ देर रुकता है।</p>
+</section><section class="card">
+<h2 data-hi="सर्वर कनेक्शन" data-en="Server connection" >सर्वर कनेक्शन</h2>
+<form id="settings-form">
+<label data-hi="सर्वर का HTTPS पता" data-en="Server HTTPS address" for="endpoint">सर्वर का HTTPS पता</label>
+<input id="endpoint" type="url" required>
+<button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
+</form><p id="settings-message" role="status"></p></section>
+<p data-hi="Indian Rail Live • संस्करण 9.4 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Indian Rail Live • Version 9.4 • Not an official Indian Railways app." class="micro">Indian Rail Live • संस्करण 9.4 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
+</section></main><nav class="bottom-nav" aria-label="Navigation">
+<a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
+<a data-hi="⌕ खोज" data-en="⌕ Search" href="#search" data-nav="search">⌕ खोज</a>
+<a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a>
+<a data-hi="☰ अधिक" data-en="☰ More" href="#more" data-nav="more">☰ अधिक</a>
+</nav><script type="module" src="app.js"></script></body></html>

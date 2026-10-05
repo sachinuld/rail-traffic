@@ -1,11 +1,3 @@
-INDIAN RAIL LIVE v9.6.0
-
-1. GitHub Pages frontend files और Render backend files इस ZIP में हैं।
-2. Render Environment में RAILKIT_API_KEY जोड़ें। RailKit की official docs के अनुसार API key dashboard से मिलती है।
-3. RAILRADAR_API_KEY को चाहें तो fallback के लिए रखा जा सकता है। यदि RAILKIT_API_KEY मौजूद है तो Live Station और Live Train के लिए RailKit इस्तेमाल होगा।
-4. Render में सामान्य Node deploy रखें; package.json में railkit dependency मौजूद है, इसलिए npm install के दौरान SDK install हो जाएगा।
-5. Deploy के बाद /health पर version 9.6.0 और /api/config में railKitConnected=true दिखना चाहिए।
-6. Live Station में अगले 4 घंटे का station board RailKit के NTES-backed data से आता है। Train click पर NTES live timeline के साथ WIMT-backed live data उपलब्ध होने पर current location/speed/delay enrich होती है।
-7. Non-stop में स्टेशन के route पर halt=false और उसी समय station पर reported passing train को दिखाया जाता है; केवल timetable में passing होने को live proximity नहीं माना जाता।
-
-महत्वपूर्ण: RAILKIT_API_KEY को frontend/GitHub में कभी न रखें। केवल Render server Environment Variable में रखें।
+Version 9.4
+ZIP निकालकर अंदर की 34 files GitHub root में replace करें। GitHub Pages deployment पूरा होने के बाद ऐप बंद करके खोलें; जरूरत हो तो Ctrl+Shift+R करें। Settings में Version 9.4 दिखेगा।
+Live Station और Behind Train के विकल्प, पेज और frontend requests हटे हैं। बाकी सुविधाएँ बरकरार हैं। इस UI बदलाव के लिए server में बदलाव आवश्यक नहीं है।
