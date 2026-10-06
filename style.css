@@ -66,3 +66,26 @@
   vertical-align: middle;
   margin-right: 7px;
 }
+
+/* v10.2: requested home section title styling only */
+.home-blue-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 11px;
+  padding: 9px 12px;
+  background: var(--blue);
+  color: #fff !important;
+  border-radius: 9px;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.25;
+}
+.home-blue-section-title .home-train-app-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  margin: 0;
+}
