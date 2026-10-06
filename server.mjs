@@ -15,13 +15,14 @@ export const server=http.createServer(async(req,res)=>{
  if(req.method==='OPTIONS')return send(204,{});
  const u=new URL(req.url,'http://localhost'),path=u.pathname,q=u.searchParams;
  if(req.method!=='GET')return send(405,{error:'Method not allowed'});
- if(path==='/health')return send(200,{ok:true,version:'rail-live-10.2.0'});
- if(path==='/api/config')return send(200,{liveConnected:!!process.env.RAILRADAR_API_KEY,mapConnected:!!process.env.GOOGLE_MAPS_API_KEY,refreshSeconds:30,version:10.2,satellite:imageryConfig()});
+ if(path==='/health')return send(200,{ok:true,version:'rail-live-9.7.0'});
+ if(path==='/api/config')return send(200,{liveConnected:!!process.env.RAILRADAR_API_KEY,mapConnected:!!process.env.GOOGLE_MAPS_API_KEY,refreshSeconds:30,version:9.7,satellite:imageryConfig()});
  try{
   if(path==='/'||staticFiles.has(path)){const file=staticFiles.get(path)||'index.html';const bytes=await readFile(new URL('./'+file,import.meta.url));res.setHeader('Content-Type',file.endsWith('.html')?'text/html; charset=utf-8':file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':file.endsWith('.woff2')?'font/woff2':file.endsWith('.png')?'image/png':'application/json');res.end(bytes);return;}
   const code=name=>{const v=q.get(name)||'';if(!/^[A-Z0-9]{1,10}$/.test(v))bad('सही स्टेशन चुनें।');return v;};
   const number=()=>{const n=q.get('train')||'';if(!/^\d{5}$/.test(n))bad('सही 5 अंकों का ट्रेन नंबर भरें।');return n;};
   const date=()=>{const d=q.get('date')||'';if(!validDate(d))bad('सही यात्रा शुरू होने की तारीख चुनें।');return d;};
+  const radius=()=>{const n=Number(q.get('radius')||100);if(![50,100].includes(n))bad('Radius must be 50 or 100 KM');return n;};
   const offset=()=>{const n=Number(q.get('offset')||0);if(!Number.isSafeInteger(n)||n<0)bad('Invalid page');return n;};
   if(path==='/api/satellite-tile'){const tile=await satelliteTile(Number(q.get('z')),Number(q.get('x')),Number(q.get('y')));res.setHeader('Content-Type',tile.type);res.end(tile.bytes);return;}
   let data;
@@ -31,6 +32,7 @@ export const server=http.createServer(async(req,res)=>{
   else if(path==='/api/schedule')data=await railData.schedule(number());
   else if(path==='/api/status')data=await railData.live(number(),date());
   else if(path==='/api/coaches')data=await railData.coaches(number(),code('station'));
+  else if(path==='/api/nearby')data=await railData.behind(number(),date(),offset(),radius());
   else if(path==='/api/location')data=await railData.location(number(),date());
   else if(path==='/api/geometry')data=await railData.geometry(number());
   else if(path==='/api/map'){const zoom=Number(q.get('zoom')||10);if(!Number.isInteger(zoom)||zoom<5||zoom>16)bad('Invalid map zoom');const bytes=await googleMap(number(),date(),zoom);res.setHeader('Content-Type','image/png');res.end(bytes);return;}

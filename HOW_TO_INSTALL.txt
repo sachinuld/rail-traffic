@@ -1,6 +1,6 @@
-Version 10.2
-ZIP निकालकर अंदर की 34 files GitHub root में replace करें। GitHub Pages deployment पूरा होने के बाद ऐप बंद करके खोलें; जरूरत हो तो Ctrl+Shift+R करें। Settings में Version 10.2 दिखेगा।
-Live Station सुविधा बरकरार है। Behind Train का विकल्प और उसका backend/API हटाया गया है। बाकी सुविधाएँ बरकरार हैं।
+Version 9.6
+ZIP निकालकर अंदर की 34 files GitHub root में replace करें। GitHub Pages deployment पूरा होने के बाद ऐप बंद करके खोलें; जरूरत हो तो Ctrl+Shift+R करें। Settings में Version 9.6 दिखेगा।
+Live Station और Behind Train के विकल्प, पेज और frontend requests हटे हैं। बाकी सुविधाएँ बरकरार हैं। इस UI बदलाव के लिए server में बदलाव आवश्यक नहीं है।
 
 
-Live Station v10.2: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
+Live Station v9.6: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
