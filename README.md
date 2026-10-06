@@ -1,10 +1,10 @@
-# Version 9.6 — Live Station integrated
+# Version 10.2 — Live Station integrated
 
 Live Station is now a first-class feature in Home and bottom navigation. It uses the existing station search and `/api/station` live backend, shows the next four hours, verified live status, ETA, arrival/departure, delay, platform and running days, and opens the existing live train details without replacing existing search/live features.
 
 Existing features remain: From/To search, train search, live route/status, RailRadar link, coach/berth view, PNR, language and theme.
 
-# Indian Rail Live — Version 9.3
+# Indian Rail Live — Version 10.2
 
 हिंदी / English, mobile-first railway status app. No built-in example trains, fallback positions, or demonstration mode.
 
@@ -17,8 +17,8 @@ The distributed ZIP is intentionally FLAT: all application modules and assets ar
 3. GitHub repository → Add file → Upload files → choose your files → सभी files → Commit changes.
 4. Render → Manual Deploy → Deploy latest commit.
 5. `/health` must show `rail-live-9.3`. GitHub Pages deployment must finish too.
-6. Open the app and press Ctrl+Shift+R. Settings must show Version 9.6.
-7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 9.3 never imports or serves them. Old subdirectories are unused by the flat package.
+6. Open the app and press Ctrl+Shift+R. Settings must show Version 10.2.
+7. Old `demo.js` / `ui/demo.js` can be deleted from GitHub. Version 10.2 never imports or serves them. Old subdirectories are unused by the flat package.
 
 Local: Node 22+; `npm start`. No npm install/build is required. Tests: `npm test`.
 Render: build command `npm install` (or leave empty if supported), start command `npm start`.
@@ -39,7 +39,6 @@ Never upload actual keys to GitHub or enter them in frontend settings.
 Live Station / Non-Stop: the four-hour provider board supplies candidates; each is checked against a fresh individual live run and an explicit route halt/non-stop flag. Include verified current proximity or an upcoming visit within the next four hours (expected time preferred; scheduled fallback explicitly labelled). Passed, unrelated, diverted and stale runs are excluded. Future visits are never labelled as current proximity. Pages verify eight candidates; Check more trains continues coverage within API limits. Missing provider coverage is not fabricated.
 
 
-Behind Train: selectable 50 / 100 KM route-distance radius, default 100. The screen displays at most 10 unique verified trains; it stops fetching more pages once ten are collected. Candidates are verified in bounded pages of eight. Cards are collapsed initially; tap the prominent train number to reveal available live details. Failed pages keep a retry cursor. A missing/stale base report is an unavailable state, not an empty successful search. Partial failures and quota cooldowns remain visible.
 
 Ordering requires the same contiguous corridor, same direction, fresh comparable timestamps and disjoint route segments. The entire reported route-distance range must fit inside the chosen radius. This is a distance range from reported stations, not an interpolated GPS position. Provider omissions and uncertain ordering limit coverage. No data is fabricated to fill ten slots.
 
@@ -51,16 +50,15 @@ Route: starts at the current/near or last reported station by default; Show Full
 
 Language: all application labels, statuses, map details, errors and seat labels switch Hindi/English. Train and station proper names remain as supplied by the provider. No notifications feature is currently active. Theme and language persist locally.
 
-Unknown timestamps are not replaced with retrieval time. Last Updated ages are shown; stale status gets Data may be delayed. Station and behind-train rows expire after five minutes. Live calls refresh about 60 seconds only on visible pages, with request coalescing/cache and a 429 cooldown. Request quota exhaustion produces partial or unavailable results, not invented data.
+Unknown timestamps are not replaced with retrieval time. Last Updated ages are shown; stale status gets Data may be delayed. Station expire after five minutes. Live calls refresh about 60 seconds only on visible pages, with request coalescing/cache and a 429 cooldown. Request quota exhaustion produces partial or unavailable results, not invented data.
 
 ## Modules / API
 
 Frontend: app.js, api.js, view.js, i18n.js, style.css, index.html.
-Backend: server.mjs, provider.mjs, railradar.mjs, nearby.mjs, accuracy.mjs, normalize.mjs, rail-data.mjs, maps.mjs, extensions.mjs.
+Backend: server.mjs, provider.mjs, railradar.mjs, accuracy.mjs, normalize.mjs, rail-data.mjs, maps.mjs, extensions.mjs.
 
 API envelopes: `{mode: 'live'|'schedule', source, updatedAt, receivedAt, data}`.
-Endpoints: /api/config, /api/stations, /api/trains, /api/between, /api/status, /api/schedule, /api/station, /api/nearby, /api/coaches, /api/location, /api/geometry, /api/map.
-The nearby endpoint also accepts `radius=50|100` (default 100); invalid radii return 400 before provider calls. Station and nearby endpoints accept nonnegative `offset`; responses have `nextOffset` or null. Page counters report candidates checked, not trains asserted to be nearby.
+Endpoints: /api/config, /api/stations, /api/trains, /api/between, /api/status, /api/schedule, /api/station, /api/coaches, /api/location, /api/geometry, /api/map.
 Backend enforces a static file allowlist; source, environment and API keys are not served. GitHub Pages only hosts public source/assets, never private credentials. Future auth/favourites/alerts use the existing extensions module.
 
 ## UI refinements
@@ -84,16 +82,14 @@ https://railradar.in/docs/station-coach-position
 
 ## v9.3 rate-limit correction
 
-Provider cache keys canonicalize query ordering. Concurrent station-page requests share work and successful pages are reused for 45 seconds. HTTP 429 stops further candidate verification and propagates Retry-After; the upstream cooldown prevents repeat requests. Cached fresh responses remain usable. Behind checks one bounded page per action; use Resume remaining checks to extend the list up to ten. Existing rows survive refresh errors. Retry buttons show a countdown. This reduces avoidable calls; it cannot override provider account quotas.
 
 ## v9.3.3 station error display
 Failed initial station requests clear Loading and hide pagination. Cooldown uses an absolute deadline, survives redraws, and does not restart on each age update. Exhausted requests pause automatic station retries until a manual retry. Server remains on the restored legacy RailRadar-based API version. No RailKit, WIMT, or NTES provider integration is included in this restored build.
 
 ## v9.3.3 — v3 request behaviour restored
-Behind search is manual: no request on opening the tab, changing radius, or the 60-second refresh timer. Each click verifies six candidates; More continues within the chosen radius and the UI retains the ten-result cap. Concurrent identical behind requests share one discovery operation. Other current features and accuracy filters remain. This reduces load; provider quotas may still apply.
 
 
-Live Station v9.8: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
+Live Station v10.2: station board uses the single /stations/{code}/live feed for the 4-hour window instead of requesting every train individually. API rate-limit retry/cooldown is capped at 30 seconds.
 
 
 ## v9.8 Home redesign

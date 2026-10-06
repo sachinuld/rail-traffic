@@ -2,9 +2,8 @@ import {stationVisit} from './station-window.mjs';
 import {nearStation,locationFacts,radiusKm,normalizeBlueprint} from './accuracy.mjs';
 import {request} from './provider.mjs';
 import {normalize,normalizeCoaches} from './railradar.mjs';
-import {discover} from './nearby.mjs';
 import {train,station,envelope,boardRow,locationOf,num,iso} from './normalize.mjs';
-const behindPending=new Map(),behindCache=new Map(),stationCache=new Map(),stationPending=new Map();
+const stationCache=new Map(),stationPending=new Map();
 const fail=message=>{const e=Error(message);e.status=502;throw e;};
 export const railData={
  async stationSearch(q){const p=await request('/lookup/search/stations?q='+encodeURIComponent(q)+'&limit=10');if(!Array.isArray(p.data))fail('Station search response unavailable');return envelope(p,p.data.map(station),'schedule');},
@@ -15,7 +14,6 @@ export const railData={
  async coaches(number,stationCode){const p=await request('/trains/'+number+'/coaches/'+stationCode);const n=normalizeCoaches(p,number,stationCode),details=p.data.rake||p.data.coaches||[];let blueprints=p.data.blueprints;
  if(!blueprints){try{blueprints=(await request('/trains/'+number+'/coaches')).data?.blueprints;}catch{}}
  n.coaches=n.coaches.map(c=>{const detail=details.find(r=>r.position===c.position&&r.code===c.code)||{};return {...c,classType:detail.classType||null,blueprint:normalizeBlueprint(blueprints?.[detail.classType]),hasSeats:detail.hasSeats??null};});return envelope(p,n,'schedule');},
- async behind(number,date,offset=0,radius=100){const p=await request('/trains/'+number+'/live?date='+date+'&haltsOnly=false&includeCoordinates=true');normalize(p,number,date);const id=number+date+p.data.lastUpdatedAt+':'+offset+':'+radius;const cached=behindCache.get(id);if(cached&&Date.now()-cached.time<60000)return cached.data;if(behindPending.has(id))return behindPending.get(id);const job=discover(p.data,request,Date.now(),offset,radius).then(result=>{const data=envelope(p,result);if(behindCache.size>80)behindCache.clear();if(!data.data.failed)behindCache.set(id,{time:Date.now(),data});return data;}).finally(()=>behindPending.delete(id));behindPending.set(id,job);return job;},
  async stationLive(code,offset=0){
   const key=code+':'+offset,c=stationCache.get(key);if(c&&Date.now()-c.time<30000)return c.data;
   if(stationPending.has(key))return stationPending.get(key);

@@ -1,6 +1,6 @@
 {
   "name": "indian-rail-live",
-  "version": "9.8.0-home-redesign",
+  "version": "10.2.0",
   "private": true,
   "type": "module",
   "scripts": {
