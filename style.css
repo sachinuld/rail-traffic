@@ -46,3 +46,23 @@
 /* Keep the existing PNR / TICKETS footer typography exactly as in v9.9. */
 .home-footer a{font-size:10px}
 @media(max-width:600px){.home-stack{display:flex;flex-direction:column;gap:14px}.home-footer a{font-size:9px}}
+
+
+/* v10.1 requested label/icon-only changes */
+.section-kicker {
+  background: var(--blue);
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 19px !important;
+  padding: 11px 14px;
+  border-radius: 10px;
+  text-align: center;
+  letter-spacing: .1px;
+}
+.home-train-app-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 7px;
+}
