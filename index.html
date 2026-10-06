@@ -1,26 +1,25 @@
-<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155f9d"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>Rail Traffic</title></head><body><header class="appbar"><a href="#home" class="brand"><span class="brand-icon">🚆</span><span>Rail Traffic</span></a><div class="header-actions"><select id="language" aria-label="Language / भाषा"><option value="hi">हिंदी</option><option value="en">English</option></select><button id="theme-toggle" class="icon-button" aria-label="Theme / रंग">◐</button></div></header><div id="connection" class="connection" role="status"></div><main><section data-page="home">
-<div class="home-hero"><h1>Rail Traffic</h1><p data-hi="ट्रेन खोजें, लाइव स्थिति देखें और स्टेशन पर आने वाली ट्रेनें जानें।" data-en="Find trains, check live status and see upcoming trains at a station.">ट्रेन खोजें, लाइव स्थिति देखें और स्टेशन पर आने वाली ट्रेनें जानें।</p></div>
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#155f9d"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>Indian Rail Live</title></head><body><header class="appbar"><a href="#home" class="brand"><span class="brand-icon">🚆</span><span>Rail Traffic</span></a><div class="header-actions"><select id="language" aria-label="Language / भाषा"><option value="hi">हिंदी</option><option value="en">English</option></select><button id="theme-toggle" class="icon-button" aria-label="Theme / रंग">◐</button></div></header><div id="connection" class="connection" role="status"></div><main><section data-page="home">
 <div class="home-stack">
-<section class="card home-search-card" id="home-route-section">
-<h2 data-hi="From Station → To Station" data-en="From Station → To Station">From Station → To Station</h2>
+<section class="card home-search-card route-card" id="home-route-section">
+<div class="section-kicker" data-hi="ट्रेन रूट खोजें" data-en="Find trains by route">Find trains by route</div>
 <form id="between-form">
-<div class="route-stack">
-<div class="home-field"><label for="from" data-hi="From Station" data-en="From Station">From Station</label><div class="station-picker"><input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div></div>
-<div class="route-arrow" aria-hidden="true">↓</div>
-<div class="home-field"><label for="to" data-hi="To Station" data-en="To Station">To Station</label><div class="station-picker"><input id="to" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="स्टेशन / कोड" aria-label="To Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required><div id="to-options" class="options" role="listbox"></div></div></div>
+<div class="route-horizontal">
+<div class="home-field"><label for="from" data-hi="From Station" data-en="From Station">From Station</label><div class="station-picker"><input id="from" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="From station" aria-label="From Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="from-options" required><div id="from-options" class="options" role="listbox"></div></div></div>
+<button id="route-swap" class="route-swap" type="button" aria-label="Swap From and To" title="Swap From and To">⇄<small>Swap</small></button>
+<div class="home-field"><label for="to" data-hi="To Station" data-en="To Station">To Station</label><div class="station-picker"><input id="to" data-hi="स्टेशन / कोड" data-en="Station / code" placeholder="To station" aria-label="To Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="to-options" required><div id="to-options" class="options" role="listbox"></div></div></div>
 </div>
-<button id="route-search" class="green-search-button" aria-label="Find Trains" data-hi="Find Trains" data-en="Find Trains"><span class="search-symbol">⌕</span><span>Find Trains</span></button>
+<button id="route-search" class="green-search-button route-find-button" aria-label="Find Trains" data-hi="Find Trains" data-en="Find Trains"><span class="search-symbol">⌕</span><span>Find Trains</span></button>
 </form></section>
 
 <section class="card home-search-card" id="home-train-section">
-<h2 data-hi="Train No. / Train Name" data-en="Train No. / Train Name">Train No. / Train Name</h2>
+<h2 data-hi="Train No. / Train Name" data-en="Train No. / Train Name">🚆 Train No. / Train Name</h2>
 <form id="train-search-form" class="home-search-form">
 <input id="train-query" data-hi="Train number or name" data-en="Train number or name" placeholder="Train number / name" aria-label="Train number or name" autocomplete="off" required>
 <button data-hi="Search" data-en="Search" id="train-search" class="green-search-button icon-only" aria-label="Search train"><span class="search-symbol">⌕</span></button>
 </form></section>
 
 <section class="card home-search-card" id="home-station-section">
-<h2 data-hi="Live Station" data-en="Live Station">Live Station</h2>
+<h2 data-hi="Station Search" data-en="Station Search">📍 Station Search</h2>
 <form id="home-station-form" class="home-search-form">
 <input id="home-live-station" data-hi="Station name or code" data-en="Station name or code" placeholder="Station name / code" aria-label="Live Station" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="home-live-station-options">
 <div id="home-live-station-options" class="options home-station-options" role="listbox"></div>
@@ -33,7 +32,6 @@
 <div id="search-history" class="search-history"><p class="micro" data-hi="आपकी हाल की खोज यहाँ दिखाई देंगी।" data-en="Your recent searches will appear here.">आपकी हाल की खोज यहाँ दिखाई देंगी।</p></div>
 </section>
 
-<a class="pnr-home-card" target="_blank" rel="noopener noreferrer" href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en"><span class="pnr-icon">PNR</span><span><strong data-hi="PNR Status" data-en="PNR Status">PNR Status</strong><small data-hi="आधिकारिक रेलवे PNR enquiry खोलें" data-en="Open official railway PNR enquiry">आधिकारिक रेलवे PNR enquiry खोलें</small></span><span class="chevron">›</span></a>
 </div>
 <div id="route-results" aria-live="polite"></div></section><section data-page="search" hidden>
 <h1 data-hi="ट्रेन खोज के नतीजे" data-en="Train results">ट्रेन खोज के नतीजे</h1>
@@ -86,10 +84,9 @@
 <input id="endpoint" type="url" required>
 <button data-hi="सेव और कनेक्ट करें" data-en="Save &amp; connect" id="settings-save" class="primary">सेव और कनेक्ट करें</button>
 </form><p id="settings-message" role="status"></p></section>
-<p data-hi="Rail Traffic • संस्करण 9.8 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Rail Traffic • Version 9.8 • Not an official Indian Railways app." class="micro">Rail Traffic • संस्करण 9.8 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
-</section></main><nav class="bottom-nav" aria-label="Navigation">
-<a data-hi="⌂ होम" data-en="⌂ Home" href="#home" data-nav="home">⌂ होम</a>
-<a data-hi="⌕ खोज" data-en="⌕ Search" href="#search" data-nav="search">⌕ खोज</a>
-<a data-hi="▤ लाइव" data-en="▤ Live" href="#live" data-nav="live">▤ लाइव</a><a data-hi="🚆 स्टेशन" data-en="🚆 Station" href="#station-live" data-nav="station-live">🚆 स्टेशन</a>
-<a data-hi="☰ अधिक" data-en="☰ More" href="#more" data-nav="more">☰ अधिक</a>
+<p data-hi="Rail Traffic • संस्करण 9.9 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।" data-en="Rail Traffic • Version 9.9 • Not an official Indian Railways app." class="micro">Rail Traffic • संस्करण 9.9 • यह भारतीय रेलवे का आधिकारिक ऐप नहीं है।</p>
+</section></main><nav class="bottom-nav home-footer" aria-label="Quick links">
+<a href="https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en" target="_blank" rel="noopener noreferrer">PNR</a>
+<span aria-hidden="true">|</span>
+<a href="https://www.irctc.co.in/" target="_blank" rel="noopener noreferrer">TICKETS</a>
 </nav><script type="module" src="app.js"></script></body></html>

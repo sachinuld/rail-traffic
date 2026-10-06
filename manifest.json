@@ -1,6 +1,6 @@
 {
-  "name": "Rail Traffic",
-  "short_name": "Rail Traffic",
+  "name": "Indian Rail Live",
+  "short_name": "Rail Live",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#eef3f8",
