@@ -62,7 +62,7 @@ function renderRunDays(days){
 }
 function stationCard(row){
  const card=el('article','','station-train-card'),head=el('div','','station-card-head'),title=el('div');
- title.append(el('button',row.number+' • '+row.name,()=>openTrain(row.number,row.journeyDate||today(),{stationDetails:true}),'train-link'));
+ title.append(el('button',row.number+' • '+row.name,()=>openTrain(row.number,row.journeyDate||today(),{stationDetails:true}),'train-link station-train-title-bar'));
  title.append(el('small',row.to?('→ '+row.to):''));
  head.append(title,el('span',stationEta(row),'station-eta'));card.append(head);
  const live=el('div','','station-live-status '+(row.visitKind==='near'?'at-station':'between-stations'));live.textContent=stationStatus(row);card.append(live);
