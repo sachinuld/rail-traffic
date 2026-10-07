@@ -22,8 +22,24 @@ export const railData={
   const job=this.stationPage(code,offset).then(data=>{if(!data.data.failed){if(stationCache.size>80)stationCache.clear();stationCache.set(key,{time:Date.now(),data});}return data;}).finally(()=>stationPending.delete(key));stationPending.set(key,job);return job;
  },
  async stationPage(code,offset=0){
-  const p=await request('/stations/'+code+'/live?hours=4&includeIntermediate=true');
-  if(p.data?.station?.code!==code||!Array.isArray(p.data.trains))fail('Live station response unavailable');
+  // The UI may receive a station name (for example ACHALDA) when the user
+  // types it directly instead of selecting a suggestion. RailRadar's live
+  // endpoint requires the real station code (ACHALDA's code is ULD).
+  // Resolve name/alias to the canonical provider code before the live call.
+  let canonical=String(code||'').trim().toUpperCase();
+  let p;
+  try{
+   p=await request('/stations/'+encodeURIComponent(canonical)+'/live?hours=4&includeIntermediate=true');
+  }catch(e){
+   if(e.status!==404)throw e;
+   const lookup=await this.stationSearch(canonical);
+   const q=canonical.toLowerCase();
+   const hit=lookup.data.find(s=>String(s.code||'').toUpperCase()===canonical || String(s.name||'').trim().toLowerCase()===q);
+   if(!hit)throw e;
+   canonical=String(hit.code||'').toUpperCase();
+   p=await request('/stations/'+encodeURIComponent(canonical)+'/live?hours=4&includeIntermediate=true');
+  }
+  if(p.data?.station?.code!==canonical||!Array.isArray(p.data.trains))fail('Live station response unavailable');
   const seen=new Set(),all=p.data.trains.filter(r=>{const n=String(r.train?.number||'');if(!/^\d{5}$/.test(n)||seen.has(n))return false;seen.add(n);return true;});
   const now=Date.now(),end=now+4*60*60*1000,selected=all.slice(offset,offset+12),rows=[];
   for(const row of selected){
@@ -42,7 +58,7 @@ export const railData={
    const currentStation=location.stationName||location.stationCode||null;
    const between=location.status&&location.status!=='arrived'&&location.status!=='at-station';
    const statusText=isAt?null:(between&&currentStation?currentStation:null);
-   rows.push({...boardRow(row,code,s.isHalt),
+   rows.push({...boardRow(row,canonical,s.isHalt),
     visitKind:isAt?'near':'upcoming',visitTime:isAt?null:visitTime,timeBasis:arrival?'expected':(visitTime?'scheduled':null),
     journeyDate:l.startDate||null,currentLocation,
     currentStation,

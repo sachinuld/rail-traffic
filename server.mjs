@@ -20,6 +20,7 @@ export const server=http.createServer(async(req,res)=>{
  try{
   if(path==='/'||staticFiles.has(path)){const file=staticFiles.get(path)||'index.html';const bytes=await readFile(new URL('./'+file,import.meta.url));res.setHeader('Content-Type',file.endsWith('.html')?'text/html; charset=utf-8':file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':file.endsWith('.woff2')?'font/woff2':file.endsWith('.png')?'image/png':'application/json');res.end(bytes);return;}
   const code=name=>{const v=q.get(name)||'';if(!/^[A-Z0-9]{1,10}$/.test(v))bad('सही स्टेशन चुनें।');return v;};
+  const stationQuery=()=>{const v=(q.get('station')||'').trim();if(v.length<2||v.length>80)bad('सही स्टेशन चुनें।');return v;};
   const number=()=>{const n=q.get('train')||'';if(!/^\d{5}$/.test(n))bad('सही 5 अंकों का ट्रेन नंबर भरें।');return n;};
   const date=()=>{const d=q.get('date')||'';if(!validDate(d))bad('सही यात्रा शुरू होने की तारीख चुनें।');return d;};
   const radius=()=>{const n=Number(q.get('radius')||100);if(![50,100].includes(n))bad('Radius must be 50 or 100 KM');return n;};
@@ -28,7 +29,7 @@ export const server=http.createServer(async(req,res)=>{
   let data;
   if(path==='/api/stations'||path==='/api/trains'){const text=(q.get('q')||'').trim();if(text.length<2||text.length>80)bad('कम से कम 2 अक्षर भरें।');data=await railData[path==='/api/stations'?'stationSearch':'trainSearch'](text);}
   else if(path==='/api/between')data=await railData.between(code('from'),code('to'),date());
-  else if(path==='/api/station')data=await railData.stationLive(code('station'),offset());
+  else if(path==='/api/station')data=await railData.stationLive(stationQuery(),offset());
   else if(path==='/api/schedule')data=await railData.schedule(number());
   else if(path==='/api/status')data=await railData.live(number(),date());
   else if(path==='/api/coaches')data=await railData.coaches(number(),code('station'));
