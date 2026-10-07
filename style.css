@@ -89,3 +89,31 @@
   flex: 0 0 28px;
   margin: 0;
 }
+
+/* Live Train quick option: same v10.2 section-title treatment, clickable. */
+.home-live-train-option {
+  text-decoration: none;
+  cursor: pointer;
+}
+.home-live-train-option:focus-visible {
+  outline: 3px solid #7dc4ff;
+  outline-offset: 2px;
+}
+
+/* Live Station train identity: stronger contrast without changing card layout. */
+.station-card-head .train-link {
+  color: var(--ink) !important;
+  font-size: 17px;
+  line-height: 1.35;
+}
+.station-train-number,
+.station-train-name {
+  color: var(--ink) !important;
+  font-weight: 800;
+}
+.station-train-number {
+  white-space: nowrap;
+}
+.station-train-name {
+  overflow-wrap: anywhere;
+}
