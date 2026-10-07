@@ -117,3 +117,69 @@
 .station-train-name {
   overflow-wrap: anywhere;
 }
+
+/* v10.2 enhancement: Live Train Map + clearer Live Station identities */
+.home-live-train-option {
+  text-decoration:none;
+  cursor:pointer;
+}
+.station-train-identity {
+  width:100%;
+  box-sizing:border-box;
+  display:block;
+  padding:9px 12px;
+  border:0;
+  border-radius:9px;
+  background:#173f66 !important;
+  color:#fff !important;
+  text-align:left;
+  line-height:1.25;
+}
+.station-train-identity .station-train-name {
+  display:block;
+  color:#fff !important;
+  font-size:17px;
+  font-weight:800;
+}
+.station-train-identity .station-train-number {
+  display:block;
+  margin-top:3px;
+  color:#fff !important;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+.timeline-current-marker {
+  position:absolute;
+  left:calc(33.333% - 20px);
+  z-index:5;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  pointer-events:none;
+}
+.timeline-current-icon {
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 8px #12314a33;
+  font-size:20px;
+}
+.timeline-current-label {
+  padding:4px 7px;
+  border-radius:7px;
+  background:#173f66;
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap;
+}
+#timeline { position:relative; }
+@media(max-width:600px){
+  .station-train-identity .station-train-name{font-size:16px}
+  .timeline-current-marker{left:calc(33.333% - 16px)}
+  .timeline-current-label{font-size:9px}
+}

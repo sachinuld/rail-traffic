@@ -7,7 +7,7 @@ export function stationDetails(s){
   const estimate=scheduled&&Number.isFinite(delay)?new Date(Date.parse(scheduled)+delay*60000).toISOString():null;
   return {scheduled,actual:observed?supplied:null,expected:['skipped','cancelled'].includes(s.status)?null:observed?null:supplied||estimate};
  };
- return {code:s.stationCode,name:s.stationName||s.stationCode,isHalt:s.isHalt===true,platform:s.platform??null,platformChanged:s.platformChanged===true,
+ return {code:s.stationCode,name:s.stationName||s.stationCode,lat:Number.isFinite(s.lat)?s.lat:null,lng:Number.isFinite(s.lng)?s.lng:null,isHalt:s.isHalt===true,platform:s.platform??null,platformChanged:s.platformChanged===true,
  status:({departed:'प्रस्थान कर चुकी',arrived:'पहुँच चुकी',upcoming:'आने वाला स्टेशन',skipped:'स्टेशन छोड़ा गया',cancelled:'रद्द'})[s.status]||s.status||'उपलब्ध नहीं',arrival:event('Arrival'),departure:event('Departure')};
 }
 export function normalizeCoaches(payload,number,station){
