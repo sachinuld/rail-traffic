@@ -26,9 +26,10 @@ function setPick(id,s){picks.set(id,s);$(id).value=s.name+' ('+s.code+')';$(id+'
 function requirePick(id){if(picks.has(id))return picks.get(id);const code=$(id).value.trim().toUpperCase();if(/^[A-Z0-9]{1,10}$/.test(code))return {code,name:code};throw Error('station');}
 function setupPicker(id){let timer,seq=0,controller;const input=$(id),list=$(id+'-options');input.oninput=()=>{picks.delete(id);clearTimeout(timer);controller?.abort();const token=++seq;list.replaceChildren();const q=input.value.trim();input.setAttribute('aria-expanded','false');if(q.length<2)return;timer=setTimeout(async()=>{controller=new AbortController();try{const w=await service.stationSearch(q,controller.signal);if(token!==seq)return;list.replaceChildren();input.setAttribute('aria-expanded','true');for(const s of w.data){const b=button(s.name+' • '+s.code,()=>{seq++;setPick(id,s);input.focus();},'option');b.setAttribute('role','option');b.append(el('small',s.city||unavailable()));list.append(b);}if(!w.data.length)list.append(el('p',t('कोई स्टेशन नहीं मिला','No stations found'),'option-message'));}catch(e){if(token===seq&&e.name!=='AbortError')list.replaceChildren(el('p',liveUnavailable(),'option-message'));}},450);};input.onkeydown=e=>{if(e.key==='ArrowDown'){e.preventDefault();list.querySelector('button')?.focus();}if(e.key==='Escape'){seq++;list.replaceChildren();input.setAttribute('aria-expanded','false');}};list.onkeydown=e=>{const bs=[...list.querySelectorAll('button')],i=bs.indexOf(document.activeElement);if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();bs[(i+(e.key==='ArrowDown'?1:bs.length-1))%bs.length]?.focus();}if(e.key==='Escape'){list.replaceChildren();input.focus();input.setAttribute('aria-expanded','false');}};document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target)){list.replaceChildren();input.setAttribute('aria-expanded','false');}});}
 ['from','to'].forEach(setupPicker);
+$('route-swap').onclick=()=>{const from=$('from').value,to=$('to').value;const fp=picks.get('from'),tp=picks.get('to');$('from').value=to;$('to').value=from;picks.delete('from');picks.delete('to');if(tp)picks.set('from',tp);if(fp)picks.set('to',fp);};
 const HISTORY_KEY='rail-search-history-v98';
 function readHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch{return[]}}
-function writeHistory(item){const old=readHistory().filter(x=>!(x.type===item.type&&x.key===item.key));old.unshift({...item,time:Date.now()});localStorage.setItem(HISTORY_KEY,JSON.stringify(old.slice(0,8)));renderHistory();}
+function writeHistory(item){const old=readHistory().filter(x=>!(x.type===item.type&&x.key===item.key));old.unshift({...item,time:Date.now()});localStorage.setItem(HISTORY_KEY,JSON.stringify(old.slice(0,10)));renderHistory();}
 function renderHistory(){const target=$('search-history');if(!target)return;const rows=readHistory();target.replaceChildren();if(!rows.length){target.append(el('p',t('आपकी हाल की खोज यहाँ दिखाई देंगी।','Your recent searches will appear here.'),'micro'));return;}for(const r of rows){const b=button('',()=>{if(r.type==='route'){const [a,bv]=(r.key||'').split('→');$('from').value=a||'';$('to').value=bv||'';picks.delete('from');picks.delete('to');between();}else if(r.type==='train'){searchTrains(r.key)}else if(r.type==='station'){const inp=$('home-live-station');inp.value=r.name||r.key;openHomeStation(r.code||r.key);}},'history-item');b.append(el('span',r.type==='route'?'↔':r.type==='train'?'🚆':'📍','history-type'),el('span',r.label||r.key,'history-label'),el('span','›','history-arrow'));target.append(b);}}
 function clearHistory(){localStorage.removeItem(HISTORY_KEY);renderHistory();}
 $('clear-history').onclick=clearHistory;
@@ -57,18 +58,7 @@ function stationStatus(row){
 }
 function stationEta(row){if(row.visitKind==='near')return t('अभी स्टेशन पर','At station now');const v=row.expectedArrival||row.expectedPassingTime||row.visitTime;const ms=Date.parse(v);if(!Number.isFinite(ms))return unavailable();const mins=Math.max(0,Math.round((ms-Date.now())/60000));if(mins<1)return t('1 मिनट से कम','Less than 1 min');return mins+' '+t('मिनट में','min');}
 function renderRunDays(days){
- const wrap=el('div','','run-days');
- const all=[['Mon','सोम','Mon'],['Tue','मंगल','Tue'],['Wed','बुध','Wed'],['Thu','गुरु','Thu'],['Fri','शुक्र','Fri'],['Sat','शनि','Sat'],['Sun','रवि','Sun']];
- const active=Array.isArray(days)?days.map(x=>String(x).slice(0,3).toLowerCase()):[];
- for(const [key,hi,en] of all){
-  const running=active.includes(key.toLowerCase());
-  const b=el('span',t(hi,en));
-  b.className=running?'running-day':'faded-day';
-  b.title=running?t('ट्रेन इस दिन चलती है','Train runs on this day'):t('ट्रेन इस दिन नहीं चलती','Train does not run on this day');
-  b.setAttribute('aria-label',b.title);
-  wrap.append(b);
- }
- return wrap;
+ const wrap=el('div','','run-days');const all=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];for(const d of all){const b=el('span',d);b.className=days?.some(x=>String(x).slice(0,3).toLowerCase()===d.toLowerCase())?'running-day':'faded-day';wrap.append(b);}return wrap;
 }
 function stationCard(row){
  const card=el('article','','station-train-card'),head=el('div','','station-card-head'),title=el('div');
