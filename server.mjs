@@ -4,7 +4,7 @@ import {railData} from './rail-data.mjs';
 import {googleMap} from './maps.mjs';
 import {readFile} from 'node:fs/promises';
 const origin=process.env.ALLOWED_ORIGIN||'https://sachinuld.github.io';
-const staticFiles=new Map(['index.html','style.css','app.js','manifest.json','sw.js','icon-192.png','icon-512.png','api.js','view.js','i18n.js','hindi-regular.woff2','hindi-bold.woff2'].map(f=>['/'+f,f]));
+const staticFiles=new Map(['index.html','style.css','app.js','manifest.json','sw.js','icon-192.png','icon-512.png','api.js','view.js','i18n.js','hindi-regular.woff2','hindi-bold.woff2','brand-logo.png','home-redesign.css'].map(f=>['/'+f,f]));
 const validDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;
 const bad=message=>{const e=Error(message);e.status=400;throw e;};
 export const server=http.createServer(async(req,res)=>{
